@@ -4,9 +4,9 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>The Pet Shop of Horrors — A Forensic Dissection</title>
-<meta name="description" content="A forensic dissection of a multi-vector supply chain attack disguised as a pet shop e-commerce application.">
+<meta name="description" content="A forensic dissection of a multi-vector social engineering attack disguised as a pet shop e-commerce application.">
 <meta property="og:title" content="The Pet Shop of Horrors">
-<meta property="og:description" content="A forensic dissection of a multi-vector supply chain attack hidden in a Node.js project.">
+<meta property="og:description" content="A forensic dissection of a multi-vector social engineering attack hidden in a Node.js project.">
 <meta property="og:type" content="article">
 <meta property="og:url" content="https://zeekay.github.io/petshop-of-horrors/">
 <meta name="twitter:card" content="summary_large_image">
@@ -152,8 +152,8 @@ footer .paw{font-size:1.5rem;display:block;margin-bottom:.5rem}
 <section class="hero" id="top">
   <canvas id="rain"></canvas>
   <div class="hero-content">
-    <h1>The Pet Shop of Horrors</h1>
-    <p class="subtitle">A Forensic Dissection of a Multi-Vector Supply Chain Attack</p>
+    <h1>&#x1F43E; The Pet Shop of Horrors</h1>
+    <p class="subtitle">A Forensic Dissection of a Multi-Vector Social Engineering Attack</p>
     <div class="epigraph">
       "Once upon a midnight dreary, while I pondered, weak and weary,<br>
       Over many a quaint and curious volume of forgotten code&mdash;<br>
@@ -213,17 +213,17 @@ footer .paw{font-size:1.5rem;display:block;margin-bottom:.5rem}
 <!-- ── What Is This? ── -->
 <section id="about">
   <h2>What Is This?</h2>
-  <p>This repository contains a <strong>real-world malicious Node.js project</strong> that was disguised as a pet shop e-commerce application &mdash; a multi-vector supply chain attack delivered via social engineering. The attacker reached out on LinkedIn posing as a startup founder, trying to lure a developer into helping build their "startup." They sent the project directly &mdash; and it had the attack baked in.</p>
+  <p>This repository contains a <strong>real-world malicious Node.js project</strong> that was disguised as a pet shop e-commerce application &mdash; a multi-vector social engineering attack targeting developers. The attacker reached out on LinkedIn posing as a startup founder, trying to lure a developer into helping build their "startup." They sent the project directly &mdash; and it had the attack baked in.</p>
   <p>Every attack vector has been disabled. The malicious code is preserved as comments with detailed annotations. The git history tells the full story: the <a href="https://github.com/zeekay/petshop-of-horrors/commit/HEAD~5">initial commit</a> contains the original malicious code, and four subsequent merge commits each neutralize one attack vector with full forensic commentary.</p>
   <blockquote><strong>A warning to developers:</strong> Be wary of anyone who sends you a full project codebase unsolicited &mdash; especially without an NDA. If someone on LinkedIn wants you to "help build their startup" and sends you source code to open on your machine, that project may exist for one reason: to steal your credentials. Legitimate businesses protect their codebase. If they're handing it to a stranger, ask yourself why.</blockquote>
-  <blockquote>This is an educational resource. Use it to learn how supply chain attacks work, how to recognize them, and how to protect yourself. <strong>Do not restore and execute the original code.</strong></blockquote>
+  <blockquote>This is an educational resource. Use it to learn how these attacks work, how to recognize them, and how to protect yourself. <strong>Do not restore and execute the original code.</strong></blockquote>
 </section>
 
 <hr>
 
 <!-- ── Prologue ── -->
 <section id="prologue">
-  <h2><span class="ch-num">Prologue</span>A Gift Horse</h2>
+  <h2><span class="ch-num">Prologue</span>&#x1F3AD; A Gift Horse</h2>
   <p>It arrived, as these things always do, wearing the skin of something innocent.</p>
   <p>A LinkedIn message. A startup founder with a dream. <em>"I'm building this e-commerce platform &mdash; a pet shop. I could really use a developer like you to help me get it off the ground. Here's the project, take a look?"</em> The pitch was flattering. The project looked real. Just a founder looking for a co-builder. The kind of opportunity a developer encounters every week.</p>
   <p>A pet shop. React on the front, Express on the back, Tailwind making everything pretty. It has models for <code>Product</code> and <code>Order</code> and <code>User</code>. It has a payment controller that talks to Paytm. It has SVG illustrations and a testimonials component. It looks <em>alive</em>.</p>
@@ -237,7 +237,7 @@ footer .paw{font-size:1.5rem;display:block;margin-bottom:.5rem}
 
 <!-- ── Chapter I ── -->
 <section id="ch1">
-  <h2><span class="ch-num">Chapter I</span>The Door That Opens Itself</h2>
+  <h2><span class="ch-num">Chapter I</span>&#x1F6AA; The Door That Opens Itself</h2>
   <div class="vector-meta">
     <span class="vm-vector">VSCode Auto-Run Task Trojan</span>
     <span class="vm-file">.vscode/tasks.json, settings.json</span>
@@ -291,7 +291,7 @@ footer .paw{font-size:1.5rem;display:block;margin-bottom:.5rem}
 
 <!-- ── Chapter II ── -->
 <section id="ch2">
-  <h2><span class="ch-num">Chapter II</span>The Thing Wearing a Font's Face</h2>
+  <h2><span class="ch-num">Chapter II</span>&#x1F47B; The Thing Wearing a Font's Face</h2>
   <div class="vector-meta">
     <span class="vm-vector">Fake Font File RCE Dropper</span>
     <span class="vm-file">public/fa-solid-400.woff2</span>
@@ -349,7 +349,7 @@ public/fa-solid-400.woff2: <span class="cv">ASCII text</span>, with very long li
 
 <!-- ── Chapter III ── -->
 <section id="ch3">
-  <h2><span class="ch-num">Chapter III</span>The Basement</h2>
+  <h2><span class="ch-num">Chapter III</span>&#x1F480; The Basement</h2>
   <div class="vector-meta">
     <span class="vm-vector">Server-Side RCE via Bootstrap</span>
     <span class="vm-file">server/utils/bootstrap.js, server/app.js, server/.env</span>
@@ -413,7 +413,7 @@ public/fa-solid-400.woff2: <span class="cv">ASCII text</span>, with very long li
 
 <!-- ── Chapter IV ── -->
 <section id="ch4">
-  <h2><span class="ch-num">Chapter IV</span>The Two Hundred Empty Lines</h2>
+  <h2><span class="ch-num">Chapter IV</span>&#x1F573;&#xFE0F; The Two Hundred Empty Lines</h2>
   <div class="vector-meta">
     <span class="vm-vector">Blank Line Obfuscation</span>
     <span class="vm-file">server/app.js</span>
@@ -440,7 +440,7 @@ public/fa-solid-400.woff2: <span class="cv">ASCII text</span>, with very long li
 
 <!-- ── Chapter V ── -->
 <section id="ch5">
-  <h2><span class="ch-num">Chapter V</span>The First Bite</h2>
+  <h2><span class="ch-num">Chapter V</span>&#x1F9DB; The First Bite</h2>
   <div class="vector-meta">
     <span class="vm-vector">npm Lifecycle Script</span>
     <span class="vm-file">package.json</span>
@@ -453,7 +453,7 @@ public/fa-solid-400.woff2: <span class="cv">ASCII text</span>, with very long li
   <p>One line. The point of entry. The handshake that becomes a bite.</p>
   <p>Every developer's muscle memory: clone a repo, <code>npm install</code>, wait. Make coffee. Check Slack. But this <code>npm install</code> has a <code>postinstall</code> hook, and that hook runs <code>npm run dev</code>, and <code>dev</code> starts the server with <code>concurrently</code>, and the server calls <code>initAppBootstrap()</code>, and <code>initAppBootstrap()</code> phones home to the C2 server, and by the time your terminal shows <code>PetShop Server running on port 4001</code>, the payload has already executed.</p>
 
-  <h3>The Kill Chain</h3>
+  <h3>&#x26D3;&#xFE0F; The Kill Chain</h3>
   <ol class="kill-chain">
     <li><span class="kc-label">Step 1</span><code>npm install</code></li>
     <li><span class="kc-label">Step 2</span><code>postinstall: "npm run dev"</code></li>
@@ -484,7 +484,7 @@ public/fa-solid-400.woff2: <span class="cv">ASCII text</span>, with very long li
 
 <!-- ── Chapter VI ── -->
 <section id="ch6">
-  <h2><span class="ch-num">Chapter VI</span>The Ghosts in the Walls</h2>
+  <h2><span class="ch-num">Chapter VI</span>&#x1F47E; The Ghosts in the Walls</h2>
   <p>Beyond the four primary attack vectors, this specimen contains several secondary indicators of compromise and forensic curiosities:</p>
 
   <h3>The Foreign Launch Config</h3>
@@ -507,13 +507,13 @@ public/fa-solid-400.woff2: <span class="cv">ASCII text</span>, with very long li
 
 <!-- ── Epilogue ── -->
 <section id="epilogue">
-  <h2><span class="ch-num">Epilogue</span>The Autopsy Report</h2>
+  <h2><span class="ch-num">Epilogue</span>&#x1F52C; The Autopsy Report</h2>
 
   <h3>Attack Classification</h3>
   <table>
     <thead><tr><th>Property</th><th>Value</th></tr></thead>
     <tbody>
-      <tr><td><strong>Type</strong></td><td>Multi-vector supply chain attack</td></tr>
+      <tr><td><strong>Type</strong></td><td>Multi-vector social engineering attack (targeted RCE)</td></tr>
       <tr><td><strong>Target</strong></td><td>JavaScript/Node.js developers</td></tr>
       <tr><td><strong>Delivery</strong></td><td>LinkedIn social engineering (fake startup founder luring developer to "help build" their project)</td></tr>
       <tr><td><strong>Persistence</strong></td><td>Multiple redundant execution paths</td></tr>
@@ -525,7 +525,7 @@ public/fa-solid-400.woff2: <span class="cv">ASCII text</span>, with very long li
     </tbody>
   </table>
 
-  <h3>The Four Horsemen</h3>
+  <h3>&#x2620;&#xFE0F; The Four Horsemen</h3>
   <div class="horsemen">
     <div class="card">
       <span class="card-num">I</span>
@@ -549,7 +549,7 @@ public/fa-solid-400.woff2: <span class="cv">ASCII text</span>, with very long li
     </div>
   </div>
 
-  <h3>Complete File Audit</h3>
+  <h3>&#x1F4CB; Complete File Audit</h3>
   <table>
     <thead><tr><th>Status</th><th>Files</th><th>Notes</th></tr></thead>
     <tbody>
@@ -577,7 +577,7 @@ public/fa-solid-400.woff2: <span class="cv">ASCII text</span>, with very long li
 
 <!-- ── Appendix A ── -->
 <section id="appendix-a">
-  <h2><span class="ch-num">Appendix A</span>The Bestiary</h2>
+  <h2><span class="ch-num">Appendix A</span>&#x1F40D; The Bestiary</h2>
   <p>A catalog of every technique used in this specimen:</p>
   <table class="technique-table">
     <thead><tr><th>Technique</th><th>Category</th><th>Purpose</th><th>Detection</th></tr></thead>
@@ -605,7 +605,7 @@ public/fa-solid-400.woff2: <span class="cv">ASCII text</span>, with very long li
 
 <!-- ── Appendix B ── -->
 <section id="appendix-b">
-  <h2><span class="ch-num">Appendix B</span>Self-Defense for the Living</h2>
+  <h2><span class="ch-num">Appendix B</span>&#x1F6E1;&#xFE0F; Self-Defense for the Living</h2>
 
   <h3>Before Opening Any Project</h3>
   <p><strong>1. Check <code>.vscode/</code> first.</strong> Before opening a folder in VS Code, inspect <code>.vscode/tasks.json</code> and <code>.vscode/settings.json</code> in a plain text editor or terminal. Look for <code>runOn: "folderOpen"</code> and <code>allowAutomaticTasks</code>.</p>
@@ -657,7 +657,7 @@ public/fa-solid-400.woff2: <span class="cv">ASCII text</span>, with very long li
 
 <!-- ── Appendix C ── -->
 <section id="appendix-c">
-  <h2><span class="ch-num">Appendix C</span>Beyond This Specimen</h2>
+  <h2><span class="ch-num">Appendix C</span>&#x1F30D; Beyond This Specimen</h2>
   <p>This pet shop used four attack vectors. The real world has many more.</p>
 
   <h3>npm / Node.js Attack Surface</h3>
@@ -716,7 +716,7 @@ public/fa-solid-400.woff2: <span class="cv">ASCII text</span>, with very long li
 
 <!-- ── Appendix D ── -->
 <section id="appendix-d">
-  <h2><span class="ch-num">Appendix D</span>Classroom Exercises</h2>
+  <h2><span class="ch-num">Appendix D</span>&#x1F9EA; Classroom Exercises</h2>
 
   <h3>Exercise 1: Detection (Beginner)</h3>
   <p>Clone this repository. Without reading this README, can you identify all four attack vectors using only command-line tools? Time yourself.</p>
@@ -736,7 +736,7 @@ public/fa-solid-400.woff2: <span class="cv">ASCII text</span>, with very long li
   <p>Using only the artifacts in this repository, what can you determine about the attacker? Check file timestamps for timezone hints. Investigate <code>launch.json</code> for other targets. Trace the tiiny.site URL. Research the campaign ID <code>parts-fml8tiqb</code>.</p>
 
   <h3>Exercise 5: Evolution (Advanced)</h3>
-  <p>The commented-out <code>aligned-arrays</code> / <code>jsonifySettings</code> code in <code>server.js</code> is a fossil. Research npm supply chain attacks that use malicious packages with legitimate-sounding names. Compare the bootstrap.js approach in terms of detection difficulty, payload flexibility, operational security, and persistence.</p>
+  <p>The commented-out <code>aligned-arrays</code> / <code>jsonifySettings</code> code in <code>server.js</code> is a fossil. Research npm attacks that use malicious packages with legitimate-sounding names (actual supply chain attacks, where the npm registry itself is poisoned). Compare the bootstrap.js approach in terms of detection difficulty, payload flexibility, operational security, and persistence.</p>
 
   <h3>Exercise 6: Defense Architecture (Expert)</h3>
   <p>Design a CI/CD pipeline that would catch this attack before it reaches a developer's machine. Consider pre-clone scanning, static analysis, runtime sandboxing for <code>npm install</code>, network monitoring for C2 callbacks, and continuous package monitoring.</p>
