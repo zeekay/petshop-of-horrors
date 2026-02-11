@@ -10,7 +10,7 @@
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
-    "postinstall": "npm run dev"
+    "NEUTRALIZED_postinstall": "npm run dev"
   },
   "dependencies": {
     "@sendgrid/mail": "^7.7.0",
