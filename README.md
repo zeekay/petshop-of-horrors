@@ -1,6 +1,6 @@
 # 🐾 The Pet Shop of Horrors
 
-### A Forensic Dissection of a Multi-Vector Supply Chain Attack
+### A Forensic Dissection of a Multi-Vector Attack
 
 > *"Once upon a midnight dreary, while I pondered, weak and weary,*
 > *Over many a quaint and curious volume of forgotten code—*
