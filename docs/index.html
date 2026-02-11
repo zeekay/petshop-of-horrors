@@ -213,9 +213,9 @@ footer .paw{font-size:1.5rem;display:block;margin-bottom:.5rem}
 <!-- ── What Is This? ── -->
 <section id="about">
   <h2>What Is This?</h2>
-  <p>This repository contains a <strong>real-world malicious Node.js project</strong> that was disguised as a pet shop e-commerce application. It was sent via LinkedIn by someone posing as a "smart business owner" seeking help with their e-commerce project &mdash; a social engineering attack targeting developers and job seekers. The source code was sent directly, no NDA, no interview process, just <em>"can you take a look at my project?"</em></p>
+  <p>This repository contains a <strong>real-world malicious Node.js project</strong> that was disguised as a pet shop e-commerce application &mdash; a multi-vector supply chain attack delivered via social engineering. The attacker reached out on LinkedIn posing as a startup founder, trying to lure a developer into helping build their "startup." They sent the project directly &mdash; and it had the attack baked in.</p>
   <p>Every attack vector has been disabled. The malicious code is preserved as comments with detailed annotations. The git history tells the full story: the <a href="https://github.com/zeekay/petshop-of-horrors/commit/HEAD~5">initial commit</a> contains the original malicious code, and four subsequent merge commits each neutralize one attack vector with full forensic commentary.</p>
-  <blockquote><strong>A warning to job seekers:</strong> Be wary of any "client" or "employer" who sends you their full source code without an NDA. Legitimate businesses protect their codebase. If someone on LinkedIn asks you to open a project on your machine as part of an interview or freelance inquiry &mdash; that project might be the interview for <em>your machine's credentials</em>.</blockquote>
+  <blockquote><strong>A warning to developers:</strong> Be wary of anyone who sends you a full project codebase unsolicited &mdash; especially without an NDA. If someone on LinkedIn wants you to "help build their startup" and sends you source code to open on your machine, that project may exist for one reason: to steal your credentials. Legitimate businesses protect their codebase. If they're handing it to a stranger, ask yourself why.</blockquote>
   <blockquote>This is an educational resource. Use it to learn how supply chain attacks work, how to recognize them, and how to protect yourself. <strong>Do not restore and execute the original code.</strong></blockquote>
 </section>
 
@@ -225,12 +225,12 @@ footer .paw{font-size:1.5rem;display:block;margin-bottom:.5rem}
 <section id="prologue">
   <h2><span class="ch-num">Prologue</span>A Gift Horse</h2>
   <p>It arrived, as these things always do, wearing the skin of something innocent.</p>
-  <p>A LinkedIn message. A friendly business owner. <em>"I have this e-commerce project, a pet shop, and I need some help. Could you take a look at the code?"</em> No NDA. No formal interview process. Just a zip file and a smile. The kind of thing a freelancer might receive on any given Tuesday, or a job seeker might open with hopeful fingers, grateful for the opportunity.</p>
+  <p>A LinkedIn message. A startup founder with a dream. <em>"I'm building this e-commerce platform &mdash; a pet shop. I could really use a developer like you to help me get it off the ground. Here's the project, take a look?"</em> The pitch was flattering. The project looked real. Just a founder looking for a co-builder. The kind of opportunity a developer encounters every week.</p>
   <p>A pet shop. React on the front, Express on the back, Tailwind making everything pretty. It has models for <code>Product</code> and <code>Order</code> and <code>User</code>. It has a payment controller that talks to Paytm. It has SVG illustrations and a testimonials component. It looks <em>alive</em>.</p>
   <p><em>Come in</em>, it whispered. <em>Just run <code>npm install</code>. Everyone does it. It's the first thing you do.</em></p>
   <p>And that's when the screaming starts.</p>
   <p>This specimen contains <strong>four independent attack vectors</strong>, any one of which achieves full remote code execution on the victim's machine. They are layered like traps in a tomb: if you dodge one, you walk into the next. The attacker built redundancy into their malware the way a good engineer builds redundancy into a system. Because malware <em>is</em> engineering. That's what makes it terrifying.</p>
-  <p>The attacker preys on trust &mdash; the trust between a job seeker and a potential employer, between a freelancer and a client. Any project that arrives without an NDA, that asks you to run it on your own machine, that comes from a stranger who found you on LinkedIn &mdash; treat it like a loaded weapon pointed at your <code>~/.ssh/</code> directory.</p>
+  <p>The attacker preys on trust &mdash; the trust between developers and the people who need their help. The excitement of a new opportunity. The instinct to clone, install, and explore. Any project that arrives unsolicited from a stranger on LinkedIn, asking you to open it on your machine &mdash; treat it like a loaded weapon pointed at your <code>~/.ssh/</code> directory.</p>
 </section>
 
 <hr>
@@ -515,7 +515,7 @@ public/fa-solid-400.woff2: <span class="cv">ASCII text</span>, with very long li
     <tbody>
       <tr><td><strong>Type</strong></td><td>Multi-vector supply chain attack</td></tr>
       <tr><td><strong>Target</strong></td><td>JavaScript/Node.js developers</td></tr>
-      <tr><td><strong>Delivery</strong></td><td>LinkedIn social engineering (fake business owner seeking dev help / targeting job seekers)</td></tr>
+      <tr><td><strong>Delivery</strong></td><td>LinkedIn social engineering (fake startup founder luring developer to "help build" their project)</td></tr>
       <tr><td><strong>Persistence</strong></td><td>Multiple redundant execution paths</td></tr>
       <tr><td><strong>C2 Server</strong></td><td><code style="color:var(--red)">https://purple-lottie-38.tiiny.site/index.json</code></td></tr>
       <tr><td><strong>C2 Auth</strong></td><td>HTTP header <code>x-secret-key: _</code></td></tr>
