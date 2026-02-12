@@ -13,11 +13,13 @@
 
 ## What Is This?
 
-This repository contains a **real-world malicious Node.js project** that was disguised as a pet shop e-commerce application. It was discovered in the wild and has been surgically neutralized for forensic study.
+This repository contains a **real-world malicious Node.js project** that was disguised as a pet shop e-commerce application. It was sent via LinkedIn by an attacker posing as a startup founder, trying to lure a developer into "helping build" their e-commerce project. The project was weaponized with four independent RCE vectors. It has been surgically neutralized for forensic study.
 
 Every attack vector has been disabled. The malicious code is preserved as comments with detailed annotations. The git history tells the full story: the [initial commit](../../commit/HEAD~5) contains the original malicious code, and four subsequent merge commits each neutralize one attack vector with full forensic commentary.
 
-**This is an educational resource.** Use it to learn how supply chain attacks work, how to recognize them, and how to protect yourself.
+**This is an educational resource.** Use it to learn how these attacks work, how to recognize them, and how to protect yourself.
+
+> ⚠️ **A warning to developers:** Be wary of anyone who sends you a full project codebase unsolicited — especially without an NDA. If someone on LinkedIn wants you to "help build their startup" and sends you source code to open on your machine, that project may exist for one reason: to steal your credentials.
 
 **Do not restore and execute the original code.**
 
@@ -44,13 +46,17 @@ Every attack vector has been disabled. The malicious code is preserved as commen
 
 It arrived, as these things always do, wearing the skin of something innocent.
 
-A pet shop. An e-commerce application. React on the front, Express on the back, Tailwind making everything pretty. The kind of project a freelancer sends you, or a candidate submits for a take-home assessment, or you find pinned to someone's GitHub profile like a butterfly pinned to velvet. It has models for `Product` and `Order` and `User`. It has a payment controller that talks to Paytm. It has SVG illustrations and a testimonials component. It looks *alive*.
+A LinkedIn message. A startup founder with a dream. *"I'm building this e-commerce platform — a pet shop. I could really use a developer like you to help me get it off the ground. Here's the project, take a look?"* The pitch was flattering. The project looked real. Just a founder looking for a co-builder.
+
+A pet shop. An e-commerce application. React on the front, Express on the back, Tailwind making everything pretty. It has models for `Product` and `Order` and `User`. It has a payment controller that talks to Paytm. It has SVG illustrations and a testimonials component. It looks *alive*.
 
 *Come in*, it whispered. *Just run `npm install`. Everyone does it. It's the first thing you do.*
 
 And that's when the screaming starts.
 
 This specimen contains **four independent attack vectors**, any one of which achieves full remote code execution on the victim's machine. They are layered like traps in a tomb: if you dodge one, you walk into the next. The attacker built redundancy into their malware the way a good engineer builds redundancy into a system. Because malware *is* engineering. That's what makes it terrifying.
+
+The attacker preys on trust — the trust between developers and the people who need their help. The excitement of a new opportunity. The instinct to clone, install, and explore. Any project that arrives unsolicited from a stranger on LinkedIn, asking you to open it on your machine — treat it like a loaded weapon pointed at your `~/.ssh/` directory.
 
 ---
 
@@ -392,9 +398,9 @@ Beyond the four primary attack vectors, this specimen contains several secondary
 
 | Property | Value |
 |----------|-------|
-| **Type** | Multi-vector supply chain attack |
+| **Type** | Multi-vector social engineering attack (targeted RCE) |
 | **Target** | JavaScript/Node.js developers |
-| **Delivery** | Social engineering (fake project / job assessment) |
+| **Delivery** | LinkedIn social engineering (fake startup founder luring developer to "help build" their project) |
 | **Persistence** | Multiple redundant execution paths |
 | **C2 Server** | `https://purple-lottie-38.tiiny.site/index.json` |
 | **C2 Auth** | HTTP header `x-secret-key: _` |
