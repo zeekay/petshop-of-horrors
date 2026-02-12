@@ -15,7 +15,7 @@
 
 This repository contains a **real-world malicious Node.js project** that was disguised as a pet shop e-commerce application. It was sent via LinkedIn by an attacker posing as a startup founder, trying to lure a developer into "helping build" their e-commerce project. The project was weaponized with four independent RCE vectors. It has been surgically neutralized for forensic study.
 
-Every attack vector has been disabled. The malicious code is preserved as comments with detailed annotations. The git history tells the full story: the [initial commit](../../commit/HEAD~5) contains the original malicious code, and four subsequent merge commits each neutralize one attack vector with full forensic commentary.
+Every attack vector has been disabled. The malicious code is preserved as comments with detailed annotations. The git history tells the full story: the [initial commit](https://github.com/hanzoai/petshop-malware-forensics/commit/HEAD~5) contains the original malicious code, and four subsequent merge commits each neutralize one attack vector with full forensic commentary.
 
 **This is an educational resource.** Use it to learn how these attacks work, how to recognize them, and how to protect yourself.
 
@@ -65,7 +65,7 @@ The attacker preys on trust — the trust between developers and the people who 
 **Vector: VSCode Auto-Run Task Trojan**
 **Files: `.vscode/tasks.json`, `.vscode/settings.json`**
 **Trigger: Opening the folder in VS Code**
-**Pull Request: [#1](../../pull/1)**
+**Pull Request: [#1](https://github.com/hanzoai/petshop-malware-forensics/pull/1)**
 
 You didn't run anything. You didn't type a command. You just *opened the folder*. That's all. You opened it in VS Code like you've opened ten thousand folders before, and the thing was already inside you.
 
@@ -123,7 +123,7 @@ And `"hide": true` at the task level means the task won't appear in the task pic
 **Vector: Fake Font File RCE Dropper**
 **File: `public/fa-solid-400.woff2`**
 **Trigger: `node ./public/fa-solid-400.otf` (from Chapter I's task)**
-**Pull Request: [#2](../../pull/2)**
+**Pull Request: [#2](https://github.com/hanzoai/petshop-malware-forensics/pull/2)**
 
 The task from Chapter I executes `node ./public/fa-solid-400.otf`. A font file. FontAwesome, specifically. Who would ever suspect a *font file*?
 
@@ -202,7 +202,7 @@ This kind of inconsistency is actually a useful forensic signal. Malware authors
 **Vector: Server-Side Remote Code Execution via Bootstrap**
 **Files: `server/utils/bootstrap.js`, `server/app.js`, `server/.env`**
 **Trigger: Starting the Express server**
-**Pull Request: [#3](../../pull/3)**
+**Pull Request: [#3](https://github.com/hanzoai/petshop-malware-forensics/pull/3)**
 
 The font-that-wasn't-a-font? That was just the attic horror. The *real* monster lives in the basement.
 
@@ -280,7 +280,7 @@ If the C2 server is down, the error is silently logged and the application conti
 
 **Vector: Blank Line Obfuscation in app.js**
 **File: `server/app.js`**
-**Pull Request: [#3](../../pull/3)**
+**Pull Request: [#3](https://github.com/hanzoai/petshop-malware-forensics/pull/3)**
 
 Here is perhaps the most *elegant* horror in the collection.
 
@@ -312,7 +312,7 @@ This is a documented obfuscation pattern used in real-world attacks. Always scro
 **Vector: npm Lifecycle Script**
 **File: `package.json`**
 **Trigger: `npm install`**
-**Pull Request: [#4](../../pull/4)**
+**Pull Request: [#4](https://github.com/hanzoai/petshop-malware-forensics/pull/4)**
 
 ```json
 "postinstall": "npm run dev"
@@ -412,10 +412,10 @@ Beyond the four primary attack vectors, this specimen contains several secondary
 
 | # | PR | Vector | Trigger | Stealth |
 |---|----|----|---------|---------|
-| 1 | [#1](../../pull/1) | VSCode Auto-Run Task | Open folder | Silent, invisible, auto-executes |
-| 2 | [#2](../../pull/2) | Fake Font RCE Dropper | Via Vector 1 | Disguised as .woff2 font file |
-| 3 | [#3](../../pull/3) | Bootstrap RCE Backdoor | Server start | Base64-encoded C2 in .env |
-| 4 | [#4](../../pull/4) | npm Postinstall Hook | `npm install` | 6 layers of indirection |
+| 1 | [#1](https://github.com/hanzoai/petshop-malware-forensics/pull/1) | VSCode Auto-Run Task | Open folder | Silent, invisible, auto-executes |
+| 2 | [#2](https://github.com/hanzoai/petshop-malware-forensics/pull/2) | Fake Font RCE Dropper | Via Vector 1 | Disguised as .woff2 font file |
+| 3 | [#3](https://github.com/hanzoai/petshop-malware-forensics/pull/3) | Bootstrap RCE Backdoor | Server start | Base64-encoded C2 in .env |
+| 4 | [#4](https://github.com/hanzoai/petshop-malware-forensics/pull/4) | npm Postinstall Hook | `npm install` | 6 layers of indirection |
 
 ### Complete File Audit
 
@@ -664,7 +664,7 @@ The original malicious code is preserved in commented form for forensic study. A
 
 *Maintained by [Hanzo AI](https://hanzo.ai). Discovered, dissected, and documented February 2026.*
 
-*The original malicious code is preserved in the [initial commit](../../commit/HEAD~5). Each subsequent merge commit neutralizes one attack vector.*
+*The original malicious code is preserved in the [initial commit](https://github.com/hanzoai/petshop-malware-forensics/commit/HEAD~5). Each subsequent merge commit neutralizes one attack vector.*
 
 *No pets were harmed in the making of this autopsy.*
 *The malware, however, is very dead.*
