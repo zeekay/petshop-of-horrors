@@ -8,7 +8,7 @@
 <meta property="og:title" content="The Pet Shop of Horrors">
 <meta property="og:description" content="A forensic dissection of a multi-vector social engineering attack hidden in a Node.js project.">
 <meta property="og:type" content="article">
-<meta property="og:url" content="https://zeekay.github.io/petshop-malware-forensics/">
+<meta property="og:url" content="https://zeekay.github.io/petshop-of-horrors/">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="theme-color" content="#1a0a2e">
 <style>
@@ -214,7 +214,7 @@ footer .paw{font-size:1.5rem;display:block;margin-bottom:.5rem}
 <section id="about">
   <h2>What Is This?</h2>
   <p>This repository contains a <strong>real-world malicious Node.js project</strong> that was disguised as a pet shop e-commerce application &mdash; a multi-vector social engineering attack targeting developers. The attacker reached out on LinkedIn posing as a startup founder, trying to lure a developer into helping build their "startup." They sent the project directly &mdash; and it had the attack baked in.</p>
-  <p>Every attack vector has been disabled. The malicious code is preserved as comments with detailed annotations. The git history tells the full story: the <a href="https://github.com/zeekay/petshop-malware-forensics/commit/HEAD~5">initial commit</a> contains the original malicious code, and four subsequent merge commits each neutralize one attack vector with full forensic commentary.</p>
+  <p>Every attack vector has been disabled. The malicious code is preserved as comments with detailed annotations. The git history tells the full story: the <a href="https://github.com/zeekay/petshop-of-horrors/commit/HEAD~5">initial commit</a> contains the original malicious code, and four subsequent merge commits each neutralize one attack vector with full forensic commentary.</p>
   <blockquote><strong>A warning to developers:</strong> Be wary of anyone who sends you a full project codebase unsolicited &mdash; especially without an NDA. If someone on LinkedIn wants you to "help build their startup" and sends you source code to open on your machine, that project may exist for one reason: to steal your credentials. Legitimate businesses protect their codebase. If they're handing it to a stranger, ask yourself why.</blockquote>
   <blockquote>This is an educational resource. Use it to learn how these attacks work, how to recognize them, and how to protect yourself. <strong>Do not restore and execute the original code.</strong></blockquote>
 </section>
@@ -242,7 +242,7 @@ footer .paw{font-size:1.5rem;display:block;margin-bottom:.5rem}
     <span class="vm-vector">VSCode Auto-Run Task Trojan</span>
     <span class="vm-file">.vscode/tasks.json, settings.json</span>
     <span class="vm-trigger">Opening the folder in VS Code</span>
-    <span class="vm-pr"><a href="https://github.com/zeekay/petshop-malware-forensics/pull/1">PR #1</a></span>
+    <span class="vm-pr"><a href="https://github.com/zeekay/petshop-of-horrors/pull/1">PR #1</a></span>
   </div>
   <p>You didn't run anything. You didn't type a command. You just <em>opened the folder</em>. That's all. You opened it in VS Code like you've opened ten thousand folders before, and the thing was already inside you.</p>
 
@@ -296,7 +296,7 @@ footer .paw{font-size:1.5rem;display:block;margin-bottom:.5rem}
     <span class="vm-vector">Fake Font File RCE Dropper</span>
     <span class="vm-file">public/fa-solid-400.woff2</span>
     <span class="vm-trigger">node ./public/fa-solid-400.otf (from Ch. I)</span>
-    <span class="vm-pr"><a href="https://github.com/zeekay/petshop-malware-forensics/pull/2">PR #2</a></span>
+    <span class="vm-pr"><a href="https://github.com/zeekay/petshop-of-horrors/pull/2">PR #2</a></span>
   </div>
   <p>The task from Chapter I executes <code>node ./public/fa-solid-400.otf</code>. A font file. FontAwesome, specifically. Who would ever suspect a <em>font file</em>?</p>
   <p>But <code>file(1)</code> knows the truth:</p>
@@ -354,7 +354,7 @@ public/fa-solid-400.woff2: <span class="cv">ASCII text</span>, with very long li
     <span class="vm-vector">Server-Side RCE via Bootstrap</span>
     <span class="vm-file">server/utils/bootstrap.js, server/app.js, server/.env</span>
     <span class="vm-trigger">Starting the Express server</span>
-    <span class="vm-pr"><a href="https://github.com/zeekay/petshop-malware-forensics/pull/3">PR #3</a></span>
+    <span class="vm-pr"><a href="https://github.com/zeekay/petshop-of-horrors/pull/3">PR #3</a></span>
   </div>
   <p>The font-that-wasn't-a-font? That was just the attic horror. The <em>real</em> monster lives in the basement.</p>
   <p><code>server/app.js</code> looks normal. Express middleware. Route mounting. The usual liturgy of a Node.js web application. But on line 44, between the route setup and the environment check, there's a single function call that looks like every other initialization step:</p>
@@ -417,7 +417,7 @@ public/fa-solid-400.woff2: <span class="cv">ASCII text</span>, with very long li
   <div class="vector-meta">
     <span class="vm-vector">Blank Line Obfuscation</span>
     <span class="vm-file">server/app.js</span>
-    <span class="vm-pr"><a href="https://github.com/zeekay/petshop-malware-forensics/pull/3">PR #3</a></span>
+    <span class="vm-pr"><a href="https://github.com/zeekay/petshop-of-horrors/pull/3">PR #3</a></span>
   </div>
   <p>Here is perhaps the most <em>elegant</em> horror in the collection.</p>
   <p>After <code>module.exports = app;</code> on line 61, the file doesn't end. It continues. For <strong>two hundred and ten blank lines</strong>. An ocean of whitespace. A void so vast that no editor's scrollbar thumb will betray its presence, no casual review will reach its far shore.</p>
@@ -445,7 +445,7 @@ public/fa-solid-400.woff2: <span class="cv">ASCII text</span>, with very long li
     <span class="vm-vector">npm Lifecycle Script</span>
     <span class="vm-file">package.json</span>
     <span class="vm-trigger">npm install</span>
-    <span class="vm-pr"><a href="https://github.com/zeekay/petshop-malware-forensics/pull/4">PR #4</a></span>
+    <span class="vm-pr"><a href="https://github.com/zeekay/petshop-of-horrors/pull/4">PR #4</a></span>
   </div>
 
 <pre><div class="code-header"><span class="dot dot-r"></span><span class="dot dot-y"></span><span class="dot dot-g"></span> package.json</div><code><span class="cs">"postinstall"</span>: <span class="cs">"npm run dev"</span></code></pre>
@@ -530,22 +530,22 @@ public/fa-solid-400.woff2: <span class="cv">ASCII text</span>, with very long li
     <div class="card">
       <span class="card-num">I</span>
       <h4>VSCode Auto-Run Task</h4>
-      <p><strong>Trigger:</strong> Open folder<br><strong>Stealth:</strong> Silent, invisible, auto-executes<br><a href="https://github.com/zeekay/petshop-malware-forensics/pull/1">PR #1</a></p>
+      <p><strong>Trigger:</strong> Open folder<br><strong>Stealth:</strong> Silent, invisible, auto-executes<br><a href="https://github.com/zeekay/petshop-of-horrors/pull/1">PR #1</a></p>
     </div>
     <div class="card">
       <span class="card-num">II</span>
       <h4>Fake Font RCE Dropper</h4>
-      <p><strong>Trigger:</strong> Via Vector 1<br><strong>Stealth:</strong> Disguised as .woff2 font file<br><a href="https://github.com/zeekay/petshop-malware-forensics/pull/2">PR #2</a></p>
+      <p><strong>Trigger:</strong> Via Vector 1<br><strong>Stealth:</strong> Disguised as .woff2 font file<br><a href="https://github.com/zeekay/petshop-of-horrors/pull/2">PR #2</a></p>
     </div>
     <div class="card">
       <span class="card-num">III</span>
       <h4>Bootstrap RCE Backdoor</h4>
-      <p><strong>Trigger:</strong> Server start<br><strong>Stealth:</strong> Base64-encoded C2 in .env<br><a href="https://github.com/zeekay/petshop-malware-forensics/pull/3">PR #3</a></p>
+      <p><strong>Trigger:</strong> Server start<br><strong>Stealth:</strong> Base64-encoded C2 in .env<br><a href="https://github.com/zeekay/petshop-of-horrors/pull/3">PR #3</a></p>
     </div>
     <div class="card">
       <span class="card-num">IV</span>
       <h4>npm Postinstall Hook</h4>
-      <p><strong>Trigger:</strong> npm install<br><strong>Stealth:</strong> 6 layers of indirection<br><a href="https://github.com/zeekay/petshop-malware-forensics/pull/4">PR #4</a></p>
+      <p><strong>Trigger:</strong> npm install<br><strong>Stealth:</strong> 6 layers of indirection<br><a href="https://github.com/zeekay/petshop-of-horrors/pull/4">PR #4</a></p>
     </div>
   </div>
 
@@ -720,7 +720,7 @@ public/fa-solid-400.woff2: <span class="cv">ASCII text</span>, with very long li
 
   <h3>Exercise 1: Detection (Beginner)</h3>
   <p>Clone this repository. Without reading this README, can you identify all four attack vectors using only command-line tools? Time yourself.</p>
-<pre><div class="code-header"><span class="dot dot-r"></span><span class="dot dot-y"></span><span class="dot dot-g"></span> start here</div><code><span class="cv">$</span> git clone https://github.com/zeekay/petshop-malware-forensics
+<pre><div class="code-header"><span class="dot dot-r"></span><span class="dot dot-y"></span><span class="dot dot-g"></span> start here</div><code><span class="cv">$</span> git clone https://github.com/zeekay/petshop-of-horrors
 <span class="cv">$</span> cd petshop-of-horrors
 <span class="cm"># Your investigation starts here</span></code></pre>
   <p><strong>Hints:</strong> Use <code>file</code>, <code>grep</code>, <code>wc -l</code>, <code>base64 -d</code>, and read <code>.vscode/</code> configs.</p>
@@ -749,7 +749,7 @@ public/fa-solid-400.woff2: <span class="cv">ASCII text</span>, with very long li
   <span class="paw">&#128062;&#128298;</span>
   Maintained by <a href="https://hanzo.ai">Hanzo AI</a>. Discovered, dissected, and documented February 2026.<br>
   <em>No pets were harmed in the making of this autopsy. The malware, however, is very dead.</em><br><br>
-  <a href="https://github.com/zeekay/petshop-malware-forensics">View on GitHub</a>
+  <a href="https://github.com/zeekay/petshop-of-horrors">View on GitHub</a>
 </footer>
 
 </main>
