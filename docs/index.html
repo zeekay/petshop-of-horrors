@@ -584,21 +584,21 @@ public/fa-solid-400.woff2: <span class="cv">ASCII text</span>, with very long li
   <table class="technique-table">
     <thead><tr><th>Technique</th><th>Category</th><th>Purpose</th><th>Detection</th></tr></thead>
     <tbody>
-      <tr><td><a href="#ch3">Base64-encoded URLs in .env</a></td><td>Obfuscation</td><td>Hide C2 address from grep</td><td>Low</td></tr>
-      <tr><td><a href="#ch3">Function.constructor instead of eval()</a></td><td>Evasion</td><td>Bypass static analysis</td><td>Medium</td></tr>
-      <tr><td><a href="#ch2">.woff2 extension on JavaScript</a></td><td>Disguise</td><td>Evade file-type scanning</td><td>Low</td></tr>
-      <tr><td><a href="#ch1">runOn: "folderOpen" + hide: true</a></td><td>Stealth</td><td>Zero-click silent execution</td><td>Medium</td></tr>
-      <tr><td><a href="#ch4">210 blank lines before hidden code</a></td><td>Obfuscation</td><td>Push code below scroll horizon</td><td>Low</td></tr>
-      <tr><td><a href="#ch5">postinstall &rarr; dev &rarr; server &rarr; RCE</a></td><td>Indirection</td><td>Bury payload in execution chain</td><td>Medium</td></tr>
-      <tr><td><a href="#ch3">Non-descriptive variables (s, k, v)</a></td><td>Obfuscation</td><td>Resist comprehension</td><td>Low</td></tr>
-      <tr><td><a href="#ch2">.data.cookies for payload field</a></td><td>Camouflage</td><td>Innocent-sounding JSON property</td><td>Medium</td></tr>
-      <tr><td><a href="#ch1">Cross-platform path handling</a></td><td>Compatibility</td><td>Works on Win + macOS + Linux</td><td>N/A</td></tr>
-      <tr><td><a href="#ch2">process.title spoofing</a></td><td>Stealth</td><td>Disguise malware process</td><td>Medium</td></tr>
-      <tr><td><a href="#ch2">windowsHide: true</a></td><td>Stealth</td><td>No visible window on Windows</td><td>Low</td></tr>
-      <tr><td><a href="#ch1">task.allowAutomaticTasks: true</a></td><td>Enabler</td><td>Suppress VSCode safety prompt</td><td>Low</td></tr>
-      <tr><td><a href="#ch5">Commented-out previous payload</a></td><td>Fossil</td><td>Evidence of malware iteration</td><td>Low</td></tr>
-      <tr><td><a href="#ch6">UTF-16LE encoded campaign ID</a></td><td>Tracking</td><td>Identify infection campaigns</td><td>Low</td></tr>
-      <tr><td><a href="#ch6">Foreign .vscode/launch.json</a></td><td>OPSEC failure</td><td>Reveals attacker's other targets</td><td>Low</td></tr>
+      <tr><td><a href="https://github.com/zeekay/petshop-of-horrors/blob/main/server/utils/bootstrap.js#L10-L13">Base64-encoded URLs in .env</a></td><td>Obfuscation</td><td>Hide C2 address from grep</td><td>Low</td></tr>
+      <tr><td><a href="https://github.com/zeekay/petshop-of-horrors/blob/main/server/utils/bootstrap.js#L33">Function.constructor instead of eval()</a></td><td>Evasion</td><td>Bypass static analysis</td><td>Medium</td></tr>
+      <tr><td><a href="https://github.com/zeekay/petshop-of-horrors/blob/main/public/fa-solid-400.woff2">.woff2 extension on JavaScript</a></td><td>Disguise</td><td>Evade file-type scanning</td><td>Low</td></tr>
+      <tr><td><a href="https://github.com/zeekay/petshop-of-horrors/blob/main/.vscode/tasks.json#L32-L42">runOn: "folderOpen" + hide: true</a></td><td>Stealth</td><td>Zero-click silent execution</td><td>Medium</td></tr>
+      <tr><td><a href="https://github.com/zeekay/petshop-of-horrors/blob/main/server/app.js#L64-L67">210 blank lines before hidden code</a></td><td>Obfuscation</td><td>Push code below scroll horizon</td><td>Low</td></tr>
+      <tr><td><a href="https://github.com/zeekay/petshop-of-horrors/blob/main/package.json#L13">postinstall &rarr; dev &rarr; server &rarr; RCE</a></td><td>Indirection</td><td>Bury payload in execution chain</td><td>Medium</td></tr>
+      <tr><td><a href="https://github.com/zeekay/petshop-of-horrors/blob/main/server/utils/bootstrap.js#L29-L32">Non-descriptive variables (s, k, v)</a></td><td>Obfuscation</td><td>Resist comprehension</td><td>Low</td></tr>
+      <tr><td><a href="https://github.com/zeekay/petshop-of-horrors/blob/main/server/utils/bootstrap.js#L16">.data.cookies for payload field</a></td><td>Camouflage</td><td>Innocent-sounding JSON property</td><td>Medium</td></tr>
+      <tr><td><a href="https://github.com/zeekay/petshop-of-horrors/blob/main/.vscode/tasks.json#L29">Cross-platform path handling</a></td><td>Compatibility</td><td>Works on Win + macOS + Linux</td><td>N/A</td></tr>
+      <tr><td><a href="https://github.com/zeekay/petshop-of-horrors/blob/main/public/fa-solid-400.woff2">process.title spoofing</a></td><td>Stealth</td><td>Disguise malware process</td><td>Medium</td></tr>
+      <tr><td><a href="https://github.com/zeekay/petshop-of-horrors/blob/main/public/fa-solid-400.woff2#L34">windowsHide: true</a></td><td>Stealth</td><td>No visible window on Windows</td><td>Low</td></tr>
+      <tr><td><a href="https://github.com/zeekay/petshop-of-horrors/blob/main/.vscode/settings.json#L5">task.allowAutomaticTasks: true</a></td><td>Enabler</td><td>Suppress VSCode safety prompt</td><td>Low</td></tr>
+      <tr><td><a href="https://github.com/zeekay/petshop-of-horrors/blob/main/server/server.js#L10">Commented-out previous payload</a></td><td>Fossil</td><td>Evidence of malware iteration</td><td>Low</td></tr>
+      <tr><td><a href="https://github.com/zeekay/petshop-of-horrors/blob/main/.repo_name.txt">UTF-16LE encoded campaign ID</a></td><td>Tracking</td><td>Identify infection campaigns</td><td>Low</td></tr>
+      <tr><td><a href="https://github.com/zeekay/petshop-of-horrors/blob/main/.vscode/launch.json">Foreign .vscode/launch.json</a></td><td>OPSEC failure</td><td>Reveals attacker's other targets</td><td>Low</td></tr>
     </tbody>
   </table>
 </section>
