@@ -1,5 +1,7 @@
 # 🐾 The Pet Shop of Horrors
 
+[![Open in Hanzo](https://hanzo.app/badges/open-in-hanzo.svg)](https://hanzo.app/dev/open?repo=github.com/zeekay/petshop-of-horrors&ref=main&action=open) [![Edit with Hanzo](https://hanzo.app/badges/edit-with-hanzo.svg)](https://hanzo.app/dev/open?repo=github.com/zeekay/petshop-of-horrors&ref=main&action=edit)
+
 ### A Forensic Dissection of a Multi-Vector Attack
 
 > *"Once upon a midnight dreary, while I pondered, weak and weary,*
